@@ -25,7 +25,7 @@ int main(int argc, char **argv){
 			parse_size_t_arg(argv[2], &ram) != 0 ||
 			parse_size_t_arg(argv[3], &disk) != 0 ||
 			parse_double_arg(argv[4], &cpu) != 0 || 
-			parse_size_t_arg(argv[5], &input_dir) ) {
+			parse_size_t_arg(argv[5], &input_dir)!=0 ) {
 		fprintf(stderr, "Invalid command line arguments.\n");
 		return 1;
 	}
