@@ -1,10 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <String.h>
 #include <unistd.h>
-
+#include <dirent.h>
 #include "parser.h"
 #include "datacenter.h"
 #include "constants.h"
+
+int verifica_extensão(char str, char ext) {
+	int l1, l2, l3;
+	l1=strlen(str);
+	l2=strlen(ext);
+	l3=l1-l2;
+	if (l3<0) {
+		return -1;
+	}
+	else {
+		return strcmp(str+l3,l2)==0;
+	}
+} 
 
 int main(int argc, char **argv){
 	DataCenter dc;
@@ -29,6 +43,22 @@ int main(int argc, char **argv){
 		fprintf(stderr, "Invalid command line arguments.\n");
 		return 1;
 	}
+
+	DIR *dirp;
+	struct dirent *dp;
+	dirp = opendir(argv[5]);
+	if (dirp == NULL) {
+		perror("opendir failed");
+		return 1;
+	}
+	size_t count=0;
+	while (dp = readdir(dirp) != NULL) {
+		if (verifica_extensao(dp->d_name, ".conf")) {
+			lista[count]=strdup(dp->d_name);
+			count++;
+		}
+	}
+	
 
 	Resources resources = {
     .ram = ram,
