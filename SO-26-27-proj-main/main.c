@@ -58,7 +58,7 @@ int main(int argc, char **argv){
 		return 1;
 	}
 	size_t count=0;
-	while (dp = readdir(dirp) != NULL) {
+	while ((dp = readdir(dirp)) != NULL) {
 		if (verifica_extensao(dp->d_name, ".conf")) {
 			lista[count]=strdup(dp->d_name);
 			count++;
