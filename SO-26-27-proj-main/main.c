@@ -65,7 +65,7 @@ int main(int argc, char **argv){
 		}
 	}
 
-	qsort(lista, count, sizeof(char*), comparar);
+	qsort(lista, count, sizeof(char*), comparar_nomes);
 	// falta a cópia recursiva
 	Resources resources = {
     .ram = ram,
