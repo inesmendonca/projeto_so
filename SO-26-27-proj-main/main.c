@@ -20,6 +20,12 @@ int verifica_extensão(char str, char ext) {
 	}
 } 
 
+int comparar_nomes(const void *a, const void *b) {
+	const char *const *pa=a; //conversão mplícita de void*
+	const char *const *pb=b;
+	return strcmp(*pa,*pb);
+}
+
 int main(int argc, char **argv){
 	DataCenter dc;
 	datacenter_init(&dc);
@@ -58,8 +64,9 @@ int main(int argc, char **argv){
 			count++;
 		}
 	}
-	
 
+	qsort(lista, count, sizeof(char*), comparar);
+	// falta a cópia recursiva
 	Resources resources = {
     .ram = ram,
     .disk = disk,
