@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <String.h>
+#include <string.h>
 #include <unistd.h>
 #include <dirent.h>
 #include "parser.h"
 #include "datacenter.h"
 #include "constants.h"
 
-int verifica_extensão(char str, char ext) {
+int verifica_extensao(const char * str, const char * ext) {
 	int l1, l2, l3;
 	l1=strlen(str);
 	l2=strlen(ext);
@@ -16,7 +16,7 @@ int verifica_extensão(char str, char ext) {
 		return -1;
 	}
 	else {
-		return strcmp(str+l3,l2)==0;
+		return strcmp(str+l3,ext)==0;
 	}
 } 
 
@@ -58,8 +58,13 @@ int main(int argc, char **argv){
 		return 1;
 	}
 	size_t count=0;
+	char **lista = NULL;
 	while ((dp = readdir(dirp)) != NULL) {
 		if (verifica_extensao(dp->d_name, ".conf")) {
+			char **tmp = realloc(lista, (count + 1)*sizeof(*char));
+			if(tmp = NULL)
+				return 1;
+			lista = tmp;
 			lista[count]=strdup(dp->d_name);
 			count++;
 		}
