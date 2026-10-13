@@ -75,13 +75,14 @@ int copiaficheiro(const char *origem, const char *destino) {
 
 int copiadiretoria(const char *origem, const char *destino) {
   DIR *d= mkdir(destino);
-  if ()
 	DIR *dirp = opendir(origem);
   if (dirp == NULL) {
 		perror("opendir failed");
 		return -1;
 	}
 	dp=readdir(dirp);
-  
-	
+  if (lstat(dp)==-1) {
+    return copiadiretoria(const char* dp, const char* destino);
+  }
+  return copiaficheiro(const char* dp, const char* destino);
 }
