@@ -48,28 +48,43 @@ int absolute_path(const char *path, char *buffer, size_t size){
 
 int copiaficheiro(const char *origem, const char *destino) {
   struct stat fich_inf;
-  if (stat(origem,&fich_inf)!=0) {
+  if (stat(origem,&fich_inf) != 0) {
     perror("Erro em obter o stat do ficheiro");
     return 1;
   }
-  int fd1= open(origem, O_RDONLY);
-  int fd2= open(destino, O_CREAT | O_TRUNC | O_WRONLY, fich_inf.st_mode & 0777);
-  if (fd1==-1 || fd2==-1) {
-    perror ("Erro ao abrir ficheiro");
+  int fd1 = open(origem, O_RDONLY);
+  if(fd1 == -1){
+    perror("Erro ao abrir o ficheiro de origem");
+    return 1;
+  }
+  int fd2 = open(destino, O_CREAT | O_TRUNC | O_WRONLY, fich_inf.st_mode & 0777);
+  if (fd2 == -1) {
+    perror ("Erro ao abrir ficheiro de destino");
     return 1;
   }
   char buffer[MAX_PATH_SIZE];
   int bytes_read = 0;
-  while ((bytes_read = read(fd1, buffer + done, MAX_PATH_SIZE ))>0) {
+  int bytes_written = 0;
+  while ((bytes_read = read(fd1, buffer, MAX_PATH_SIZE)) > 0) {
     int done = 0;
+    // em caso de o disco ficar sem espaço em que escreve menos do que lê 
     while(done < bytes_read){
-    bytes_written=write(fd2, buffer + done, bytes_read - done);
+    bytes_written = write(fd2, buffer + done, bytes_read - done);
     if (bytes_written < 0) {
-      perror("write error");
+      perror("erro de escrita");
+      close(fd1);
+      close(fd2);
       return 1;
     }
     done += bytes_written;
     }
+  }
+  // se a operção read falhar
+  if(bytes_read < 0){
+    perror("erro de leitura");
+    close(fd1);
+    close(fd2);
+    return 1;
   }
   close(fd1);
   close(fd2);
@@ -79,8 +94,9 @@ int copiaficheiro(const char *origem, const char *destino) {
 int copiadiretoria(const char *origem, const char *destino) {
   if(mkdir(destino,0755) != 0 && errno != EEXIST){
     perror("erro ao criar diretoria de destino");
-    return -1;
+    return 1;
   }
+  struct dirent *entry;
 	DIR *dp = opendir(origem);
   char nova_origem[MAX_PATH_SIZE];
   char novo_destino[MAX_PATH_SIZE];
@@ -88,15 +104,16 @@ int copiadiretoria(const char *origem, const char *destino) {
 		perror("opendir failed");
 		return 1;
 	}
-	while((entry = readdir(dir)) > 0){
-    if(strcmp(dp->d_name, ".") || strcmp(dp->d_name,".."))
+	while((entry = readdir(dp)) != NULL){
+    if(strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name,"..") == 0)
       continue;
-    snprintf(nova_origem, sizeof(nova_origem), "%s/%s", origem, dp->d_name);
-    snprintf(novo_destino,sizeof(novo_destino),"%s/%s",destino, dp->d_name);
+    snprintf(nova_origem, sizeof(nova_origem), "%s/%s", origem, entry->d_name);
+    snprintf(novo_destino,sizeof(novo_destino),"%s/%s",destino, entry->d_name);
   
     struct stat st;
     if(lstat(nova_origem,&st) == -1){
-      perror("erro ao executar stat");
+      perror("erro ao executar lstat");
+      closedir(dp);
       return 1;
       }
     if(S_ISDIR(st.st_mode))
