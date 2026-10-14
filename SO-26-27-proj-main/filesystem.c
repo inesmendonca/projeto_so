@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <errno.h>
 
 int path_exists(const char *path){
   struct stat st;
@@ -58,15 +59,17 @@ int copiaficheiro(const char *origem, const char *destino) {
     return 1;
   }
   char buffer[MAX_PATH_SIZE];
-  int done=0;
-  int bytes_read=0;
-  while ((bytes_read=read(fd1, buffer + done, MAX_PATH_SIZE - done))>0) {
-    bytes_written=write(fd2, buffer+done, MAX_PATH_SIZE - done);
-    if (bytes_written<0) {
+  int bytes_read = 0;
+  while ((bytes_read = read(fd1, buffer + done, MAX_PATH_SIZE ))>0) {
+    int done = 0;
+    while(done < bytes_read){
+    bytes_written=write(fd2, buffer + done, bytes_read - done);
+    if (bytes_written < 0) {
       perror("write error");
       return 1;
     }
-    done+=bytes_written;
+    done += bytes_written;
+    }
   }
   close(fd1);
   close(fd2);
@@ -78,27 +81,29 @@ int copiadiretoria(const char *origem, const char *destino) {
     perror("erro ao criar diretoria de destino");
     return -1;
   }
-  struct dirent *dp;
 	DIR *dp = opendir(origem);
+  char nova_origem[MAX_PATH_SIZE];
+  char novo_destino[MAX_PATH_SIZE];
   if (dp == NULL) {
 		perror("opendir failed");
-		return -1;
+		return 1;
 	}
-	while((dp = readdir(dp)) > 0){
-    if(strcmp(dp->d_name, ".") && strcmp(dp->d_name,".."))
+	while((entry = readdir(dir)) > 0){
+    if(strcmp(dp->d_name, ".") || strcmp(dp->d_name,".."))
       continue;
     snprintf(nova_origem, sizeof(nova_origem), "%s/%s", origem, dp->d_name);
     snprintf(novo_destino,sizeof(novo_destino),"%s/%s",destino, dp->d_name);
+  
+    struct stat st;
+    if(lstat(nova_origem,&st) == -1){
+      perror("erro ao executar stat");
+      return 1;
+      }
+    if(S_ISDIR(st.st_mode))
+      copiadiretoria(nova_origem,novo_destino);
+    else if (S_ISREG(st.st_mode))
+      copiaficheiro(nova_origem,novo_destino);
   }
-  struct stat st;
-  if(stat(nova_origem,&st) == -1){
-    perror("erro ao executar stat");
-    return -1;
-  }
-  if(S_ISDIR(st.st_mode))
-    copiadiretoria(nova_origem,novo_destino);
-  else if (S_ISREG(st.st_mode))
-    copiaficheiro(nova_origem,novo_destino);
   closedir(dp);
   return 0;
 
