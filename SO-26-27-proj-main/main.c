@@ -7,13 +7,14 @@
 #include "datacenter.h"
 #include "constants.h"
 
+/*devolve 1 se tiver a extensão pretendida devolve 0 caso contrário*/
 int verifica_extensao(const char * str, const char * ext) {
 	int l1, l2, l3;
 	l1=strlen(str);
 	l2=strlen(ext);
 	l3=l1-l2;
-	if (l3<0) {
-		return -1;
+	if (l3 < 0) {
+		return 0;
 	}
 	else {
 		return strcmp(str+l3,ext)==0;
@@ -21,8 +22,8 @@ int verifica_extensao(const char * str, const char * ext) {
 } 
 
 int comparar_nomes(const void *a, const void *b) {
-	const char *const *pa=a; //conversão mplícita de void*
-	const char *const *pb=b;
+	const char *const *pa = a; //conversão mplícita de void*
+	const char *const *pb = b;
 	return strcmp(*pa,*pb);
 }
 
@@ -44,8 +45,7 @@ int main(int argc, char **argv){
 	if (parse_size_t_arg(argv[1], &servers) != 0 ||
 			parse_size_t_arg(argv[2], &ram) != 0 ||
 			parse_size_t_arg(argv[3], &disk) != 0 ||
-			parse_double_arg(argv[4], &cpu) != 0 || 
-			parse_size_t_arg(argv[5], &input_dir)!=0 ) {
+			parse_double_arg(argv[4], &cpu) != 0 ) {
 		fprintf(stderr, "Invalid command line arguments.\n");
 		return 1;
 	}
@@ -61,8 +61,8 @@ int main(int argc, char **argv){
 	char **lista = NULL;
 	while ((dp = readdir(dirp)) != NULL) {
 		if (verifica_extensao(dp->d_name, ".conf")) {
-			char **tmp = realloc(lista, (count + 1)*sizeof(*char));
-			if(tmp = NULL)
+			char **tmp = realloc(lista, (count + 1)*sizeof(char*));
+			if(tmp == NULL)
 				return 1;
 			lista = tmp;
 			lista[count]=strdup(dp->d_name);
