@@ -118,4 +118,8 @@ const char *vm_state_to_string(VMState state);
  */
 const char *res_state_to_string(ReservationState state);
 
+int make_dir(const char *path);
+int originy_vm_dir(Reservation *res, VM *vm);
+
+
 #endif // DATACENTER_UTILS__H

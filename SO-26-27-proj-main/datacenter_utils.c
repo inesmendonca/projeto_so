@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/resource.h>
+#include <errno.h>
+#include <sys/stat.h>
 
 VMType *VMType_exists(DataCenter *dc, const char* type_id){
 	for(size_t i = 0; i < dc->num_vm_types; i++){
@@ -246,10 +248,31 @@ void spawn_vm_child(VM *vm) {
 	fprintf(stderr, "VM execution not implemented in base version.\n");
 }
 
+int make_dir(const char *path){
+	if(mkdir(path,0755) && errno != EEXIST){
+		return 1;
+	}
+	return 0;
+}
+
+int originy_vm_dir(Reservation *res, VM *vm){
+	char first_path[MAX_PATH_SIZE];
+	char vm_destino[MAX_PATH_SIZE];
+	snprintf(first_path,sizeof(first_path),"%s/%s",CLOUD_IST,res->id);
+	snprintf(vm_destino,sizeof(vm_destino),"%s/%s",first_path,vm->id);
+	if(make_dir(first_path) != 0 || make_dir(vm_destino) != 0){
+		return 1;
+	}
+	return copiadiretoria(vm->type->input_folder, vm_destino);
+}
+
 int spawn_all_vms(Reservation *res) {
 	for (size_t i = 0; i < res->num_vms; i++) {
 		VM *vm = res->vms[i];
-
+		if(originy_vm_dir(res,vm) != 0){
+			perror("Erro ao originar a diretoria de destino para a VM");
+			return 1;
+		}
 		// TODO: Implement fork code. Set VM PID and update VM state to running.
 
 		spawn_vm_child(vm);

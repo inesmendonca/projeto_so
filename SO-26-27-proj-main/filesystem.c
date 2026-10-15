@@ -115,7 +115,7 @@ int copiadiretoria(const char *origem, const char *destino) {
       perror("erro ao executar lstat");
       closedir(dp);
       return 1;
-      }
+    }
     if(S_ISDIR(st.st_mode))
       copiadiretoria(nova_origem,novo_destino);
     else if (S_ISREG(st.st_mode))
