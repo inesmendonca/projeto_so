@@ -257,7 +257,7 @@ int make_dir(const char *path){
 
 int originy_vm_dir(Reservation *res, VM *vm){
 	char first_path[MAX_PATH_SIZE];
-	char vm_destino[MAX_PATH_SIZE];
+	char vm_destino[MAX_PATH_SIZE + MAX_VM_ID_STRING];
 	snprintf(first_path,sizeof(first_path),"%s/%s",CLOUD_IST,res->id);
 	snprintf(vm_destino,sizeof(vm_destino),"%s/%s",first_path,vm->id);
 	if(make_dir(first_path) != 0 || make_dir(vm_destino) != 0){

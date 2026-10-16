@@ -6,18 +6,18 @@
 #include "parser.h"
 #include "datacenter.h"
 #include "constants.h"
+#include <fcntl.h>
 
 /*devolve 1 se tiver a extensão pretendida devolve 0 caso contrário*/
 int verifica_extensao(const char * str, const char * ext) {
-	int l1, l2, l3;
+	size_t l1, l2;
 	l1=strlen(str);
 	l2=strlen(ext);
-	l3=l1-l2;
-	if (l3 < 0) {
+	if (l1 < l2) {
 		return 0;
 	}
 	else {
-		return strcmp(str+l3,ext)==0;
+		return strcmp(str+ (l1 - l2),ext)==0;
 	}
 } 
 
@@ -40,8 +40,7 @@ int main(int argc, char **argv){
 	size_t ram;
 	size_t disk;
 	double cpu;
-	size_t input_dir;
-	size_t cores;
+	double cores;
 
 	if (parse_size_t_arg(argv[1], &servers) != 0 ||
 			parse_size_t_arg(argv[2], &ram) != 0 ||

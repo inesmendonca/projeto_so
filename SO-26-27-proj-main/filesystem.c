@@ -63,13 +63,13 @@ int copiaficheiro(const char *origem, const char *destino) {
     return 1;
   }
   char buffer[MAX_PATH_SIZE];
-  int bytes_read = 0;
-  int bytes_written = 0;
+  long int bytes_read = 0;
+  long int bytes_written = 0;
   while ((bytes_read = read(fd1, buffer, MAX_PATH_SIZE)) > 0) {
-    int done = 0;
+    long int done = 0;
     // em caso de o disco ficar sem espaço em que escreve menos do que lê 
     while(done < bytes_read){
-    bytes_written = write(fd2, buffer + done, bytes_read - done);
+    bytes_written = write(fd2, buffer + done, (size_t) (bytes_read - done));
     if (bytes_written < 0) {
       perror("erro de escrita");
       close(fd1);
