@@ -260,7 +260,7 @@ int originy_vm_dir(Reservation *res, VM *vm){
 	char vm_destino[MAX_PATH_SIZE + MAX_VM_ID_STRING];
 	snprintf(first_path,sizeof(first_path),"%s/%s",CLOUD_IST,res->id);
 	snprintf(vm_destino,sizeof(vm_destino),"%s/%s",first_path,vm->id);
-	if(make_dir(first_path) != 0 || make_dir(vm_destino) != 0){
+	if(make_dir(CLOUD_IST) != 0|| make_dir(first_path) != 0 || make_dir(vm_destino) != 0  ){
 		return 1;
 	}
 	return copiadiretoria(vm->type->input_folder, vm_destino);
@@ -269,6 +269,7 @@ int originy_vm_dir(Reservation *res, VM *vm){
 int spawn_all_vms(Reservation *res) {
 	for (size_t i = 0; i < res->num_vms; i++) {
 		VM *vm = res->vms[i];
+		
 		if(originy_vm_dir(res,vm) != 0){
 			perror("Erro ao originar a diretoria de destino para a VM");
 			return 1;
