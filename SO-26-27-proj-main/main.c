@@ -47,7 +47,7 @@ int main(int argc, char **argv){
 			parse_size_t_arg(argv[2], &ram) != 0 ||
 			parse_size_t_arg(argv[3], &disk) != 0 ||
 			parse_double_arg(argv[4], &cpu) != 0 ||
-			parse_double_arg(argv[5], &cores) != 0) {
+			parse_double_arg(argv[6], &cores) != 0) {
 		fprintf(stderr, "Invalid command line arguments.\n");
 		return 1;
 	}
@@ -82,15 +82,28 @@ int main(int argc, char **argv){
 
 	if(datacenter_configure(&dc, servers, &resources) != 0){
 		fprintf(stderr, "Failed to configure Data Center.\n");
+		for(size_t i = 0; i < count; i++){
+			free(lista[i]);
+		}
+		free(lista);
 		return 1;
 	}
-
-	while(1){
-		switch (get_next_command(STDIN_FILENO)){
+	for(size_t i = 0; i < count; i++){
+		char file_path[MAX_PATH_SIZE];
+		snprintf(file_path,sizeof(file_path),"%s/%s",argv[5],lista[i]);
+		int fd = open(file_path,O_RDONLY);
+		if(fd == - 1){
+			perror("Erro ao abrir ficheiro de extensão .conf");
+			free(lista);
+			return 1;
+		}
+	int processing = 1;
+	while(processing){
+		switch (get_next_command(fd)){
 			case CMD_DEFINE: {
 				VMType vmtype;
 
-				if (parse_define(STDIN_FILENO, &vmtype) != 0) {
+				if (parse_define(fd, &vmtype) != 0) {
 					fprintf(stderr, "Invalid define command. See H (help) for usage.\n");
 					continue;
 				}
@@ -108,7 +121,7 @@ int main(int argc, char **argv){
 			case CMD_RESERVE: {
 				Reservation reservation = {0};
 
-				size_t num_items = parse_reserve(STDIN_FILENO, &reservation, MAX_RESERVATIONS_ITEMS);
+				size_t num_items = parse_reserve(fd, &reservation, MAX_RESERVATIONS_ITEMS);
 
 				if (num_items == 0) {
 					fprintf(stderr, "Invalid reserve command. See H (help) for usage.\n");
@@ -128,7 +141,7 @@ int main(int argc, char **argv){
 			case CMD_EXECUTE:
 				char id[MAX_STRING_SIZE];
 
-				if(parse_execute(STDIN_FILENO, id) != 0){
+				if(parse_execute(fd, id) != 0){
 					fprintf(stderr, "Invalid execute command. See H (help) for usage.\n");
 					continue;
 				}
@@ -153,7 +166,7 @@ int main(int argc, char **argv){
 			case CMD_WAIT:
 				unsigned int delay;
 
-				if(parse_wait(STDIN_FILENO, &delay) != 0){
+				if(parse_wait(fd, &delay) != 0){
 					fprintf(stderr, "Invalid wait command. See H (help) for usage.\n");
 					continue;
 				}
@@ -182,8 +195,14 @@ int main(int argc, char **argv){
 				break;
 
 			case EOC:
-				datacenter_destroy(&dc);
-				return 0;
+				processing = 0;
+				break;
 		}
 	}
+	close(fd);
+	free(lista[i]);
+	}
+	free(lista);
+	datacenter_destroy(&dc);
+	return 0;
 }
