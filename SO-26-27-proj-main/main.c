@@ -32,7 +32,7 @@ int main(int argc, char **argv){
 	datacenter_init(&dc);
 
 	if (argc != 6) {
-    fprintf(stderr, "Usage: %s <servers> <ram> <disk> <cpus> <INPUT_DIR>\n", argv[0]);
+    fprintf(stderr, "Usage: %s <servers> <ram> <disk> <cpus> <INPUT_DIR> <cores-da-maquina-local-seleccionados-para-o-CloudIST>\n", argv[0]);
     return 1;
   }
 
@@ -41,11 +41,13 @@ int main(int argc, char **argv){
 	size_t disk;
 	double cpu;
 	size_t input_dir;
+	size_t cores;
 
 	if (parse_size_t_arg(argv[1], &servers) != 0 ||
 			parse_size_t_arg(argv[2], &ram) != 0 ||
 			parse_size_t_arg(argv[3], &disk) != 0 ||
-			parse_double_arg(argv[4], &cpu) != 0 ) {
+			parse_double_arg(argv[4], &cpu) != 0 ||
+			parse_double_arg(argv[5], &cores) != 0) {
 		fprintf(stderr, "Invalid command line arguments.\n");
 		return 1;
 	}
