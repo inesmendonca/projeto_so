@@ -240,14 +240,6 @@ void reservation_destroy(DataCenter *dc, Reservation *reservation) {
 	dc->num_reservations--;
 }
 
-void spawn_vm_child(VM *vm) {
-	(void)vm; // To avoid warning.
-
-	// TODO: Limit RAM, DISK and use exec with cpulimit.
-
-	fprintf(stderr, "VM execution not implemented in base version.\n");
-}
-
 int make_dir(const char *path){
 	if(mkdir(path,0755) && errno != EEXIST){
 		return 1;
@@ -266,7 +258,33 @@ int originy_vm_dir(Reservation *res, VM *vm){
 	return copiadiretoria(vm->type->input_folder, vm_destino);
 }
 
-int spawn_all_vms(Reservation *res) {
+void spawn_vm_child(VM *vm, DataCenter *dc) { //ALTEREI A FUNÇÃO E ADICICIONEI O DATACENTER!!!!!!
+	(void)vm; // To avoid warning.
+	struct rlimit lim_ram;
+	lim_ram.rlim_cur = vm->type->required.ram;  //define os limites da RAM 
+	lim_ram.rlim_max = vm->type->required.ram;
+	if (setrlimit(RLIMIT_AS,&lim_ram)<0) {
+		perror("setrlimit failed");
+		return;
+	}
+	struct rlimit lim_disk;
+	lim_disk.rlim_cur = vm->type->required.disk;  //define os limites do disk
+	lim_disk.rlim_max = vm->type->required.disk;
+	if (setrlimit(RLIMIT_FSIZE,&lim_disk)<0) {
+		perror("setrlimit failed");
+		return;
+	}
+	double cpu_limit=((double)vm->type->required.cpu/vm->server->total.cpu)*dc->num_servers*100.0;
+	char cpu_limit_str[32];
+
+	snprintf(cpu_limit_str, sizeof(cpu_limit_str), "%.2f", cpu_limit);
+	execlp("cpulimit", "cpulimit","-q","-f","-l", cpu_limit_str,"--", vm->type->exec_path, NULL); //o primeiro comando indica qual o programa se vai executar e o segundo corresponde ao argv[0]
+	
+	fprintf(stderr, "VM execution not implemented in base version.\n");
+	perror("execlp failed");
+}
+
+int spawn_all_vms(Reservation *res, DataCenter *dc) { //alterei esta função!!!!, adicionaei o datacenter
 	for (size_t i = 0; i < res->num_vms; i++) {
 		VM *vm = res->vms[i];
 		
@@ -274,19 +292,31 @@ int spawn_all_vms(Reservation *res) {
 			perror("Erro ao originar a diretoria de destino para a VM");
 			return 1;
 		}
-		// TODO: Implement fork code. Set VM PID and update VM state to running.
-
-		spawn_vm_child(vm);
-
+		pid_t childPid; 
+		switch (childPid=fork()) {
+		
+		case -1: /* error */
+        	perror("fork");
+        	exit(EXIT_FAILURE);
+		case 0:
+			spawn_vm_child(vm,dc);
+			exit(EXIT_FAILURE);
+		default:
+			vm->pid=childPid;
+			vm->state=VM_STATE_RUNNING;
+			break;
+		}
 	}
-
+	wait_for_all_vms(res);
+	reservation_destroy(dc,res);
 	return 0;
 }
 
 void wait_for_all_vms(Reservation *res) {
+	int status;
 	for (size_t i = 0; i < res->num_vms; i++) {
-		// TODO: IMPLEMENT WAITING FOR VM
-
+		if (waitpid(res->vms[i]->pid, &status, 0) == -1)
+            return;
 		res->vms[i]->state = VM_STATE_TERMINATED;
 	}
 }
