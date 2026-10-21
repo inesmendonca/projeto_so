@@ -7,6 +7,7 @@
 #include "datacenter.h"
 #include "constants.h"
 #include <fcntl.h>
+#include <pthread.h>
 
 /*devolve 1 se tiver a extensão pretendida devolve 0 caso contrário*/
 int verifica_extensao(const char * str, const char * ext) {
