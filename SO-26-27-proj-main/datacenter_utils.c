@@ -258,24 +258,24 @@ int originy_vm_dir(Reservation *res, VM *vm){
 	return copiadiretoria(vm->type->input_folder, vm_destino);
 }
 
-void spawn_vm_child(VM *vm, DataCenter *dc) { //ALTEREI A FUNÇÃO E ADICICIONEI O DATACENTER!!!!!!
+void spawn_vm_child(VM *vm, DataCenter *dc) { 
 	(void)vm; // To avoid warning.
 	struct rlimit lim_ram;
 	lim_ram.rlim_cur = vm->type->required.ram;  //define os limites da RAM 
 	lim_ram.rlim_max = vm->type->required.ram;
-	if (setrlimit(RLIMIT_AS,&lim_ram)<0) {
+	if (setrlimit(RLIMIT_AS,&lim_ram) < 0) {
 		perror("setrlimit failed");
 		return;
 	}
 	struct rlimit lim_disk;
 	lim_disk.rlim_cur = vm->type->required.disk;  //define os limites do disk
 	lim_disk.rlim_max = vm->type->required.disk;
-	if (setrlimit(RLIMIT_FSIZE,&lim_disk)<0) {
+	if (setrlimit(RLIMIT_FSIZE,&lim_disk) < 0) {
 		perror("setrlimit failed");
 		return;
 	}
-	double cpu_limit=((double)vm->type->required.cpu/vm->server->total.cpu)*(double)dc->num_servers*100.0;
-	char cpu_limit_str[32];
+	double cpu_limit = (vm->type->required.cpu/vm->server->total.cpu)*(double)dc->num_servers*100.0;
+	char cpu_limit_str[MAX_STRING_SIZE];
 
 	snprintf(cpu_limit_str, sizeof(cpu_limit_str), "%.2f", cpu_limit);
 	execlp("cpulimit", "cpulimit","-q","-f","-l", cpu_limit_str,"--", vm->type->exec_path, NULL); //o primeiro comando indica qual o programa se vai executar e o segundo corresponde ao argv[0]
@@ -284,7 +284,7 @@ void spawn_vm_child(VM *vm, DataCenter *dc) { //ALTEREI A FUNÇÃO E ADICICIONEI
 	perror("execlp failed");
 }
 
-int spawn_all_vms(Reservation *res, DataCenter *dc) { //alterei esta função!!!!, adicionaei o datacenter
+int spawn_all_vms(Reservation *res, DataCenter *dc) { 
 	for (size_t i = 0; i < res->num_vms; i++) {
 		VM *vm = res->vms[i];
 		
