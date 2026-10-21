@@ -87,10 +87,24 @@ int main(int argc, char **argv){
 		qsort(lista, count, sizeof(char*), comparar_nomes);
 	}
 
-	Thread *args= malloc(max_threads*sizeof(char*));
-	for (i=0; i<args->total_files; i++) {
+	Thread *args= malloc(sizeof(Thread));
+	args->conf_files=lista;
+	args->total_files=sizeof(lista);
+	args->ind_curr=0;
+	args->dc=dc;
+	pthread_mutex_init(&args->mutex_t,NULL);
 
+	for (i=0; i<max_threads; i++) {
+		if(pthread_create(&threads[i],0,do_thread,&args)!=0) {
+			exit(1);
+		};
 	}
+	for (i=0; i<max_threads;i++) {
+		pthread_join (threads[i], NULL);
+	}
+	pthread_mutex_destroy(&args->mutex_t);
+	free(args);
+	
 	Resources resources = {
     .ram = ram,
     .disk = disk,
