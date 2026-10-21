@@ -274,7 +274,7 @@ void spawn_vm_child(VM *vm, DataCenter *dc) { //ALTEREI A FUNÇÃO E ADICICIONEI
 		perror("setrlimit failed");
 		return;
 	}
-	double cpu_limit=((double)vm->type->required.cpu/vm->server->total.cpu)*dc->num_servers*100.0;
+	double cpu_limit=((double)vm->type->required.cpu/vm->server->total.cpu)*(double)dc->num_servers*100.0;
 	char cpu_limit_str[32];
 
 	snprintf(cpu_limit_str, sizeof(cpu_limit_str), "%.2f", cpu_limit);
