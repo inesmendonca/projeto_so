@@ -81,7 +81,6 @@ typedef struct DataCenter {
 typedef struct Thread {
     char** conf_files;
     int total_files;
-    double cores;
     size_t ind_curr;
     DataCenter *dc;
     pthread_mutex_t mutex_t;
