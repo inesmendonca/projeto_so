@@ -87,6 +87,10 @@ int main(int argc, char **argv){
 		qsort(lista, count, sizeof(char*), comparar_nomes);
 	}
 
+	Thread *args= malloc(max_threads*sizeof(char*));
+	for (i=0; i<args->total_files; i++) {
+
+	}
 	Resources resources = {
     .ram = ram,
     .disk = disk,

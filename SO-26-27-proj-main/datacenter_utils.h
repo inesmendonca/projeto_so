@@ -2,6 +2,7 @@
 #define DATACENTER_UTILS__H
 
 #include "datacenter.h"
+#include <pthread.h>
 
 /**
  * Checks if a VMType with the given id exists.
