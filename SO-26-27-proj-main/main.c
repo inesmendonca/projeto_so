@@ -22,7 +22,7 @@ int verifica_extensao(const char * str, const char * ext) {
 } 
 
 int comparar_nomes(const void *a, const void *b) {
-	const char *const *pa = a; //conversão mplícita de void*
+	const char *const *pa = a; //conversão implícita de void*
 	const char *const *pb = b;
 	return strcmp(*pa,*pb);
 }
@@ -31,8 +31,8 @@ int main(int argc, char **argv){
 	DataCenter dc;
 	datacenter_init(&dc);
 
-	if (argc != 7) {
-    fprintf(stderr, "Usage: %s <servers> <ram> <disk> <cpus> <INPUT_DIR> <cores-da-maquina-local-seleccionados-para-o-CloudIST>\n", argv[0]);
+	if (argc != 8) {
+    fprintf(stderr, "Usage: %s <servers> <ram> <disk> <cpus> <INPUT_DIR> <cores-da-maquina-local-seleccionados-para-o-CloudIST> <MAX_THREADS>\n", argv[0]);
     return 1;
   }
 
@@ -41,24 +41,30 @@ int main(int argc, char **argv){
 	size_t disk;
 	double cpu;
 	double cores;
+	size_t max_threads;
 
 	if (parse_size_t_arg(argv[1], &servers) != 0 ||
 			parse_size_t_arg(argv[2], &ram) != 0 ||
 			parse_size_t_arg(argv[3], &disk) != 0 ||
 			parse_double_arg(argv[4], &cpu) != 0 ||
-			parse_double_arg(argv[6], &cores) != 0) {
+			parse_double_arg(argv[6], &cores) != 0 ||
+			parse_size_t_arg(argv[7],&max_threads) != 0) {
 		fprintf(stderr, "Invalid command line arguments.\n");
 		return 1;
 	}
 
+	if(max_threads == 0){
+		fprintf(stderr,"o máximo de threads deve ser um inteiro positivo\n");
+		return 1;
+	}
 	DIR *dirp;
 	struct dirent *dp;
 	dirp = opendir(argv[5]);
 	if (dirp == NULL) {
-		perror("opendir failed");
+		fprintf(stderr,"opendir failed\n");
 		return 1;
 	}
-	size_t count=0;
+	size_t count = 0;
 	char **lista = NULL;
 	while ((dp = readdir(dirp)) != NULL) {
 		if (verifica_extensao(dp->d_name, ".conf")) {
@@ -70,9 +76,16 @@ int main(int argc, char **argv){
 			count++;
 		}
 	}
+	closedir(dirp);
+	// se não existirem ficheiros do tipo pretendido, a função não deve processar nada 
+	if(count == 0){
+		fprintf(stderr, "Não há ficheiros .conf presentes na diretoria\n");
+		return 0;
+	}
+	else{ //ordenação por ordem alfabética caso existam ficheiros .conf
+		qsort(lista, count, sizeof(char*), comparar_nomes);
+	}
 
-	qsort(lista, count, sizeof(char*), comparar_nomes);
-	// falta a cópia recursiva
 	Resources resources = {
     .ram = ram,
     .disk = disk,
