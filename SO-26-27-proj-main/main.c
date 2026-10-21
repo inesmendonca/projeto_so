@@ -5,28 +5,10 @@
 #include <dirent.h>
 #include "parser.h"
 #include "datacenter.h"
+#include "auxiliate_conf"
 #include "constants.h"
 #include <fcntl.h>
 #include <pthread.h>
-
-/*devolve 1 se tiver a extensão pretendida devolve 0 caso contrário*/
-int verifica_extensao(const char * str, const char * ext) {
-	size_t l1, l2;
-	l1=strlen(str);
-	l2=strlen(ext);
-	if (l1 < l2) {
-		return 0;
-	}
-	else {
-		return strcmp(str+ (l1 - l2),ext)==0;
-	}
-} 
-
-int comparar_nomes(const void *a, const void *b) {
-	const char *const *pa = a; //conversão implícita de void*
-	const char *const *pb = b;
-	return strcmp(*pa,*pb);
-}
 
 int main(int argc, char **argv){
 	DataCenter dc;
@@ -104,7 +86,7 @@ int main(int argc, char **argv){
 	}
 	pthread_mutex_destroy(&args->mutex_t);
 	free(args);
-	
+
 	Resources resources = {
     .ram = ram,
     .disk = disk,
