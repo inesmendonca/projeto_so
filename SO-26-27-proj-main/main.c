@@ -5,7 +5,7 @@
 #include <dirent.h>
 #include "parser.h"
 #include "datacenter.h"
-#include "auxiliate_conf"
+#include "auxiliate_conf.h"
 #include "constants.h"
 #include <fcntl.h>
 #include <pthread.h>
@@ -70,10 +70,11 @@ int main(int argc, char **argv){
 	}
 
 	Thread *args= malloc(sizeof(Thread));
+	args->input_dir=argv[5];
 	args->conf_files=lista;
 	args->total_files=sizeof(lista);
 	args->ind_curr=0;
-	args->dc=dc;
+	args->dc=&dc;
 	pthread_mutex_init(&args->mutex_t,NULL);
 
 	for (i=0; i<max_threads; i++) {
