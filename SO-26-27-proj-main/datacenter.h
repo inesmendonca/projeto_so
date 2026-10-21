@@ -78,6 +78,14 @@ typedef struct DataCenter {
 	int configured;		      // Wheter the datacenter is configured or not.
 } DataCenter;
 
+typedef struct Thread {
+    char** conf_files;
+    int total_files;
+    double cores;
+    size_t ind_curr;
+    DataCenter *dc;
+    pthread_mutex_t mutex_t;
+} Thread;
 /**
  * Initializes a Data Center.
  *
