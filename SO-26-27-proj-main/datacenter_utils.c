@@ -258,7 +258,7 @@ int originy_vm_dir(Reservation *res, VM *vm){
 	return copiadiretoria(vm->type->input_folder, vm_destino);
 }
 
-void spawn_vm_child(VM *vm, DataCenter *dc) { 
+void spawn_vm_child(VM *vm, DataCenter *dc, double cores) { 
 	(void)vm; // To avoid warning.
 	struct rlimit lim_ram;
 	lim_ram.rlim_cur = vm->type->required.ram;  //define os limites da RAM 
@@ -274,7 +274,11 @@ void spawn_vm_child(VM *vm, DataCenter *dc) {
 		perror("setrlimit failed");
 		return;
 	}
-	double cpu_limit = (vm->type->required.cpu/vm->server->total.cpu)*(double)dc->num_servers*100.0;
+	double max_limit=100.0*cores;
+	double cpu_limit = (100.0*vm->type->required.cpu*cores)/((double)vm->server->total.cpu*(double)dc->num_servers);
+	if (cpu_limit>max_limit) {
+		cpu_limit=max_limit;
+	}
 	char cpu_limit_str[MAX_STRING_SIZE];
 
 	snprintf(cpu_limit_str, sizeof(cpu_limit_str), "%.2f", cpu_limit);
@@ -284,7 +288,7 @@ void spawn_vm_child(VM *vm, DataCenter *dc) {
 	perror("execlp failed");
 }
 
-int spawn_all_vms(Reservation *res, DataCenter *dc) { 
+int spawn_all_vms(Reservation *res, DataCenter *dc, double cores) { 
 	for (size_t i = 0; i < res->num_vms; i++) {
 		VM *vm = res->vms[i];
 		
@@ -299,7 +303,7 @@ int spawn_all_vms(Reservation *res, DataCenter *dc) {
         	perror("fork");
         	exit(EXIT_FAILURE);
 		case 0:
-			spawn_vm_child(vm,dc);
+			spawn_vm_child(vm,dc,cores);
 			exit(EXIT_FAILURE);
 		default:
 			vm->pid=childPid;
