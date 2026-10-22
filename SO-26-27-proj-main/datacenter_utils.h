@@ -98,7 +98,7 @@ int spawn_all_vms(Reservation *res, DataCenter *dc, double cores);
  *
  * @param res Pointer to the Reservation whose VMs should be waited on.
  */
-void wait_for_all_vms(Reservation *res);
+void wait_for_all_vms(Reservation *res, DataCenter *dc);
 
 /**
  * Converts a VM state to a human-readable string. Used by datacenter_list().

@@ -151,7 +151,7 @@ int datacenter_execute(DataCenter *dc, const char *reservation_id, double cores)
   res->state = RES_STATE_RUNNING;
   pthread_mutex_unlock(&dc->reservations_lock);
 
-  wait_for_all_vms(res);
+  wait_for_all_vms(res,dc);
 
   pthread_mutex_lock(&dc->reservations_lock);
 
