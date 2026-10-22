@@ -47,6 +47,7 @@ int main(int argc, char **argv){
 		fprintf(stderr,"opendir failed\n");
 		return 1;
 	}
+	//construção da lista de ficheiros de extensão .conf
 	size_t count = 0;
 	char **lista = NULL;
 	while ((dp = readdir(dirp)) != NULL) {
@@ -68,6 +69,16 @@ int main(int argc, char **argv){
 	else{ //ordenação por ordem alfabética caso existam ficheiros .conf
 		qsort(lista, count, sizeof(char*), comparar_nomes);
 	}
+	//limitar o número de threads caso sejam superiores ao número de ficheiros presentes
+	if(max_threads > count){
+		max_threads = count;
+	} 
+	Resources resources = {
+    .ram = ram,
+    .disk = disk,
+    .cpu = cpu
+	};
+
 	if(datacenter_configure(&dc, servers, &resources) != 0){
 			fprintf(stderr, "Failed to configure Data Center.\n");
 			for(size_t i = 0; i < count; i++){
@@ -76,6 +87,7 @@ int main(int argc, char **argv){
 			free(lista);
 			return 1;
 		}
+	
 	Thread *args= malloc(sizeof(Thread));
 	args->input_dir=argv[5];
 	args->conf_files=lista;
@@ -97,14 +109,10 @@ int main(int argc, char **argv){
 	pthread_mutex_destroy(&args->mutex_t);
 	free(args);
 
-	Resources resources = {
-    .ram = ram,
-    .disk = disk,
-    .cpu = cpu
-	};
-
+	for(size_t i = 0; i < count; i++){
+		free(lista[i]);
+	}
 	
-
 	free(lista);
 	datacenter_destroy(&dc);
 	return 0;
