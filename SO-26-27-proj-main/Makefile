@@ -1,28 +1,27 @@
-CC = gcc
+CC      = gcc
+CFLAGS  = -g -std=c17 -D_POSIX_C_SOURCE=200809L -pthread \
+          -Wall -Werror -Wextra -Wcast-align -Wconversion -Wfloat-equal \
+          -Wformat=2 -Wnull-dereference -Wshadow -Wsign-conversion \
+          -Wswitch-enum -Wundef -Wunreachable-code -Wunused \
+          -fsanitize=undefined -fmax-errors=5
+LDFLAGS = -pthread -fsanitize=undefined
+LDLIBS  = -lm
 
-CFLAGS = -g -std=c17 -D_POSIX_C_SOURCE=200809L \
-		 -Wall -Werror -Wextra \
-		 -Wcast-align -Wconversion -Wfloat-equal -Wformat=2 -Wnull-dereference -Wshadow -Wsign-conversion -Wswitch-enum -Wundef -Wunreachable-code -Wunused \
- 		 -fsanitize=undefined
+TARGET  = cloudIST
+OBJS    = main.o parser.o datacenter.o datacenter_utils.o resources.o \
+          filesystem.o auxiliate_conf.o
+HEADERS = auxiliate_conf.h constants.h datacenter.h datacenter_utils.h \
+          filesystem.h parser.h resources.h
 
-ifneq ($(shell uname -s),Darwin) # if not MacOS
-	CFLAGS += -fmax-errors=5
-endif
+all: $(TARGET)
 
-all: cloudIST
+$(TARGET): $(OBJS)
+	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LDLIBS)
 
-cloudIST: main.c constants.h parser.o datacenter.o datacenter_utils.o resources.o filesystem.o
-	$(CC) $(CFLAGS) $(SLEEP) -o cloudIST main.c parser.o datacenter.o datacenter_utils.o resources.o filesystem.o -lm
-
-%.o: %.c %.h
-	$(CC) $(CFLAGS) -c ${@:.o=.c}
-
-run: cloudIST
-	@./cloudIST
+%.o: %.c $(HEADERS)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o cloudIST
+	rm -f $(TARGET) $(OBJS)
 
-format:
-	@which clang-format >/dev/null 2>&1 || echo "Please install clang-format to run this command"
-	clang-format -i *.c *.h
+.PHONY: all clean

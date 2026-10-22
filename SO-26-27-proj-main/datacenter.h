@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <sys/types.h>
+#include <pthread.h>
 
 #include "resources.h"
 #include "constants.h"
