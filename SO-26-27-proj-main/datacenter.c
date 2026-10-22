@@ -18,7 +18,7 @@ void datacenter_init(DataCenter *dc) {
   dc->configured = 0;
 
   pthread_rwlock_init(&dc->types_lock, NULL);
-  pthread_mutex_init(&dc->resrevations_lock, NULL);
+  pthread_mutex_init(&dc->reservations_lock, NULL);
 }
 
 void datacenter_destroy(DataCenter *dc) {
@@ -32,7 +32,7 @@ void datacenter_destroy(DataCenter *dc) {
     free(dc->reservations[i]);
   }
   free(dc->servers);
-  pthread_rw_destroy(&dc->types_lock);
+  pthread_rwlock_destroy(&dc->types_lock);
   pthread_mutex_destroy(&dc->reservations_lock);
 }
 
