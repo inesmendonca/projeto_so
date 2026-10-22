@@ -80,7 +80,7 @@ typedef struct DataCenter {
 
 	int configured;		      // Wheter the datacenter is configured or not.
 
-    pthread_rw_lock_t types_lock; //protege vm_types
+    pthread_rwlock_t types_lock; //protege vm_types
     pthread_mutex_t reservations_lock; // protege a lista de reservas 
 
 } DataCenter;

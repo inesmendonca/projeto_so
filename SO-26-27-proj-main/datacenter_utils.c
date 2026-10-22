@@ -305,9 +305,11 @@ int spawn_all_vms(Reservation *res, DataCenter *dc, double cores) {
 		case 0:
 			spawn_vm_child(vm,dc,cores);
 			exit(EXIT_FAILURE);
-		default:
+		default: //colocar trinco
+	        pthread_mutex_lock(&dc->mutex_t);
 			vm->pid=childPid;
 			vm->state=VM_STATE_RUNNING;
+			pthread_mutex_unlock(&dc->mutex_t);
 			break;
 		}
 	}
@@ -319,7 +321,9 @@ void wait_for_all_vms(Reservation *res) {
 	for (size_t i = 0; i < res->num_vms; i++) {
 		if (waitpid(res->vms[i]->pid, &status, 0) == -1)
             return;
+		pthread_mutex_lock(&dc->mutex_t);
 		res->vms[i]->state = VM_STATE_TERMINATED;
+		pthread_mutex_unlock(&dc->mutex_t);
 	}
 }
 

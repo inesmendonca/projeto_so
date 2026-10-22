@@ -29,7 +29,7 @@ void datacenter_destroy(DataCenter *dc) {
     pthread_mutex_destroy(&dc->servers[i].lock);
   }
   for(size_t i = 0; i < dc->num_reservations; i++){
-    free(dc->reservations[i]);
+    free(&dc->reservations[i]);
   }
   free(dc->servers);
   pthread_rwlock_destroy(&dc->types_lock);
@@ -108,22 +108,27 @@ int datacenter_reserve(DataCenter *dc, Reservation *reservation) {
     fprintf(stderr, "Data Center needs to be configured!\n");
     return 1;
   }
-
+  pthread_mutex_lock(&dc->reservations_lock);
   if(reservation_validate(dc, reservation) != 0){
+    pthread_mutex_unlock(&dc->reservations_lock);
     return 1;
   }
 
   if (dc->num_reservations >= MAX_RESERVATIONS){
     fprintf(stderr, "Max number of reservations reached\n");
+    pthread_mutex_unlock(&dc->reservations_lock);
     return 1;
   }
 
-  if (reservation_commit(dc, reservation) != 0)
+  if (reservation_commit(dc, reservation) != 0){
+    pthread_mutex_unlock(&dc->reservations_lock);
     return 1;
+  }
 
   dc->reservations[dc->num_reservations] = *reservation;
   dc->num_reservations++;
 
+  pthread_mutex_unlock(&dc->reservations_lock);
   return 0;
 }
 
@@ -132,20 +137,28 @@ int datacenter_execute(DataCenter *dc, const char *reservation_id, double cores)
     fprintf(stderr, "Data Center needs to be configured!\n");
     return 1;
   }
-
+  pthread_mutex_lock(&dc->reservations_lock);
   Reservation *res = find_pending_reservation(dc, reservation_id);
-  if (!res) return 1;
+  if (!res) {
+    pthread_mutex_unlock(&dc->reservations_lock);
+    return 1;
+  }
 
-  if (spawn_all_vms(res,dc,cores) != 0) return 1;
-
+  if (spawn_all_vms(res,dc,cores) != 0) {
+    pthread_mutex_unlock(&dc->reservations_lock);
+    return 1;
+  }
   res->state = RES_STATE_RUNNING;
+  pthread_mutex_unlock(&dc->reservations_lock);
 
   wait_for_all_vms(res);
 
-  res->state = RES_STATE_FINISHED;
+  pthread_mutex_lock(&dc->reservations_lock);
 
+  res->state = RES_STATE_FINISHED;
   reservation_destroy(dc, res);
 
+  pthread_mutex_unlock(&dc->reservations_lock);
   return 0;
 }
 
@@ -154,6 +167,8 @@ int datacenter_list(DataCenter *dc) {
     fprintf(stderr, "Data Center needs to be configured!\n");
     return 1;
   }
+
+  pthread_mutex_lock(&dc->reservations_lock);
 
   printf("=================================== DATA CENTER STATUS ===================================\n");
   printf("\n[ PHYSICAL SERVERS ] (%zu total)\n", dc->num_servers);
@@ -244,6 +259,9 @@ int datacenter_list(DataCenter *dc) {
   }
 
   printf("================================================================--------------------------\n\n");
+
+  pthread_mutex_unlock(&dc->reservations_lock);
+
   return 0;
 }
 

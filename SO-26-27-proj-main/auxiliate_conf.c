@@ -96,7 +96,7 @@ void *do_thread(void *arg){
 						break;
 					}
 
-					case CMD_EXECUTE:
+					case CMD_EXECUTE: {
 						char id[MAX_STRING_SIZE];
 
 						if(parse_execute(fd, id) != 0){
@@ -112,16 +112,16 @@ void *do_thread(void *arg){
 						printf("Finished reservation execution!\n");
 
 						break;
-
-					case CMD_LIST:
+                    }
+					case CMD_LIST: {
 						if (datacenter_list(dc) != 0) {
 							fprintf(stderr, "Failed to list VMs.\n");
 							continue;
 						}
 
 						break;
-
-					case CMD_WAIT:
+                    }
+					case CMD_WAIT: {
 						unsigned int delay;
 
 						if(parse_wait(fd, &delay) != 0){
@@ -131,12 +131,12 @@ void *do_thread(void *arg){
 
 						datacenter_wait(delay);
 						break;
-
-					case CMD_INVALID:
+                    }
+					case CMD_INVALID: {
 						fprintf(stderr, "Invalid Command. See H (help) for usage.\n");
 						break;
-
-					case CMD_HELP:
+                    }
+					case CMD_HELP: {
 						printf(
 							"Spaces between arguments are allowed, but not after command end.\n"
 							"Available commands:\n"
@@ -148,7 +148,7 @@ void *do_thread(void *arg){
 							" H\n"
 						);
 						break;
-
+                    }
 					case CMD_EMPTY:
 						break;
 
