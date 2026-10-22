@@ -5,6 +5,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 
 void datacenter_init(DataCenter *dc) {
   dc->servers = NULL;
@@ -73,28 +74,32 @@ int datacenter_define_VM(DataCenter *dc, VMType *type){
     return 1;
   }
 
-  if(VMType_exists(dc, type->id) != NULL){
-    fprintf(stderr, "VM type with id %s already exists.\n", type->id);
-    return 1;
-  }
-
   if (!file_exists(type->exec_path)) {
-    fprintf(stderr, "Invalid executable path.\n");
-    return 1;
-  }
+      fprintf(stderr, "Invalid executable path.\n");
+      return 1;
+    }
 
   if (!path_exists(type->input_folder)) {
     fprintf(stderr, "Invalid input folder.\n");
     return 1;
   }
 
+  //seccção crítica que envolve a mpdificação da variável vm_types
+  pthread_rwlock_wrlock(&dc->types_lock);
+  if(VMType_exists(dc, type->id) != NULL){
+    pthread_rwlock_unlock(&dc->types_lock);
+    fprintf(stderr, "VM type with id %s already exists.\n", type->id);
+    return 1;
+  }
+
   if(dc->num_vm_types >= MAX_VM_TYPES){
+    pthread_rwlock_unlock(&dc->types_lock);
     fprintf(stderr, "Maximum of VM types reached.\n");
     return 1;
   }
   
   dc->vm_types[dc->num_vm_types++] = *type;
-
+  pthread_rwlock_unlock(&dc->types_lock);
   return 0;
 }
 
