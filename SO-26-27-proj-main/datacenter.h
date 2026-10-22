@@ -39,6 +39,8 @@ typedef struct Server {
 
 	VM *hosted_vms[MAX_HOSTED_VMS];
     size_t num_hosted_vms;
+
+    pthread_mutex_t lock; //protege available, hosted_vms e o seu estado
 } Server;
 
 typedef enum {
@@ -77,6 +79,10 @@ typedef struct DataCenter {
     size_t num_reservations;
 
 	int configured;		      // Wheter the datacenter is configured or not.
+
+    pthread_rw_lock_t types_lock; //protege vm_types
+    pthread_mutex_t reservations_lock; // protege a lista de reservas 
+
 } DataCenter;
 
 typedef struct Thread {

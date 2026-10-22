@@ -15,6 +15,9 @@ void datacenter_init(DataCenter *dc) {
   dc->num_reservations = 0;
 
   dc->configured = 0;
+
+  pthread_rwlock_init(&dc->types_lock, NULL);
+  pthread_mutex_init(&dc->resrevations_lock, NULL);
 }
 
 void datacenter_destroy(DataCenter *dc) {
@@ -22,8 +25,14 @@ void datacenter_destroy(DataCenter *dc) {
     for(size_t j = 0; j < dc->servers[i].num_hosted_vms; j++){
       free(dc->servers[i].hosted_vms[j]);
     }
+    pthread_mutex_destroy(&dc->servers[i].lock);
+  }
+  for(size_t i = 0; i < dc->num_reservations; i++){
+    free(dc->reservations[i]);
   }
   free(dc->servers);
+  pthread_rw_destroy(&dc->types_lock);
+  pthread_mutex_destroy(&dc->reservations_lock);
 }
 
 int datacenter_configure(DataCenter *dc, size_t num_servers, Resources *resources){
@@ -49,6 +58,7 @@ int datacenter_configure(DataCenter *dc, size_t num_servers, Resources *resource
     dc->servers[i].total = *resources;
     dc->servers[i].available = *resources;
     dc->servers[i].num_hosted_vms = 0;
+    pthread_mutex_init(&dc->servers[i].lock, NULL);
   }
 
   dc->num_servers = num_servers;
