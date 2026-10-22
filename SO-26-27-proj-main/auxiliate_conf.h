@@ -26,4 +26,12 @@ int verifica_extensao(const char * str, const char * ext);
  */
 int comparar_nomes(const void *a, const void *b);
 
+/**
+* Realiza a tarefa, assegurando sincronização entre processos.
+*
+* @param arg ponteiro para a estrutura Thread
+* @return NULL, simbolizando assim o fim de todo o processo da lista de ficheiros
+*/
+void *do_thread(void *arg);
+
 #endif
