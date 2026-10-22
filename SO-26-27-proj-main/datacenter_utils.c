@@ -311,8 +311,6 @@ int spawn_all_vms(Reservation *res, DataCenter *dc, double cores) {
 			break;
 		}
 	}
-	wait_for_all_vms(res);
-	reservation_destroy(dc,res);
 	return 0;
 }
 

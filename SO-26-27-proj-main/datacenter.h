@@ -86,6 +86,7 @@ typedef struct Thread {
     size_t ind_curr;
     DataCenter *dc;
     pthread_mutex_t mutex_t;
+    double cores;
 } Thread;
 /**
  * Initializes a Data Center.

@@ -68,18 +68,26 @@ int main(int argc, char **argv){
 	else{ //ordenação por ordem alfabética caso existam ficheiros .conf
 		qsort(lista, count, sizeof(char*), comparar_nomes);
 	}
-
+	if(datacenter_configure(&dc, servers, &resources) != 0){
+			fprintf(stderr, "Failed to configure Data Center.\n");
+			for(size_t i = 0; i < count; i++){
+				free(lista[i]);
+			}
+			free(lista);
+			return 1;
+		}
 	Thread *args= malloc(sizeof(Thread));
 	args->input_dir=argv[5];
 	args->conf_files=lista;
-	args->total_files=sizeof(lista);
+	args->total_files=count;
 	args->ind_curr=0;
 	args->dc=&dc;
+	args->cores = cores;
 	pthread_mutex_init(&args->mutex_t,NULL);
 
 	pthread_t threads[max_threads];
 	for (size_t i=0; i<max_threads; i++) {
-		if(pthread_create(&threads[i],0,do_thread,&args)!=0) {
+		if(pthread_create(&threads[i],0,do_thread,args)!=0) {
 			exit(1);
 		};
 	}
@@ -95,15 +103,8 @@ int main(int argc, char **argv){
     .cpu = cpu
 	};
 
-	if(datacenter_configure(&dc, servers, &resources) != 0){
-		fprintf(stderr, "Failed to configure Data Center.\n");
-		for(size_t i = 0; i < count; i++){
-			free(lista[i]);
-		}
-		free(lista);
-		return 1;
-	}
 	
+
 	free(lista);
 	datacenter_destroy(&dc);
 	return 0;

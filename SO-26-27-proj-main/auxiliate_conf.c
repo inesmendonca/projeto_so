@@ -104,7 +104,7 @@ void *do_thread(void *arg){
 							continue;
 						}
 
-						if (datacenter_execute(dc, id, cores) != 0) { //alterei os argumentos
+						if (datacenter_execute(dc, id, args->cores) != 0) { //alterei os argumentos
 							fprintf(stderr, "Failed to execute reservation.\n");
 							continue;
 						}
