@@ -1,4 +1,8 @@
-/*devolve 1 se tiver a extensão pretendida devolve 0 caso contrário*/
+#include "auxiliate_conf.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 int verifica_extensao(const char * str, const char * ext) {
 	size_t l1, l2;
 	l1=strlen(str);

@@ -112,7 +112,7 @@ int datacenter_reserve(DataCenter *dc, Reservation *reservation) {
   return 0;
 }
 
-int datacenter_execute(DataCenter *dc, const char *reservation_id) {
+int datacenter_execute(DataCenter *dc, const char *reservation_id, double cores) {
   if(!dc->configured){
     fprintf(stderr, "Data Center needs to be configured!\n");
     return 1;
@@ -121,7 +121,7 @@ int datacenter_execute(DataCenter *dc, const char *reservation_id) {
   Reservation *res = find_pending_reservation(dc, reservation_id);
   if (!res) return 1;
 
-  if (spawn_all_vms(res) != 0) return 1;
+  if (spawn_all_vms(res,dc,cores) != 0) return 1;
 
   res->state = RES_STATE_RUNNING;
 

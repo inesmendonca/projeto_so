@@ -77,12 +77,13 @@ int main(int argc, char **argv){
 	args->dc=&dc;
 	pthread_mutex_init(&args->mutex_t,NULL);
 
-	for (i=0; i<max_threads; i++) {
+	pthread_t threads[max_threads];
+	for (size_t i=0; i<max_threads; i++) {
 		if(pthread_create(&threads[i],0,do_thread,&args)!=0) {
 			exit(1);
 		};
 	}
-	for (i=0; i<max_threads;i++) {
+	for (size_t i=0; i<max_threads;i++) {
 		pthread_join (threads[i], NULL);
 	}
 	pthread_mutex_destroy(&args->mutex_t);
@@ -160,7 +161,7 @@ int main(int argc, char **argv){
 					continue;
 				}
 
-				if (datacenter_execute(&dc, id) != 0) {
+				if (datacenter_execute(&dc, id, cores) != 0) { //alterei os argumentos
 					fprintf(stderr, "Failed to execute reservation.\n");
 					continue;
 				}

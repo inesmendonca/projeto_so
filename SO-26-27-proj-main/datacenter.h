@@ -152,7 +152,7 @@ int datacenter_list(DataCenter *dc);
  * @return 0 on success.
  * @return 1 on error.
  */
-int datacenter_execute(DataCenter *dc, const char *reservation_id);
+int datacenter_execute(DataCenter *dc, const char *reservation_id, double cores); //alterei os argumentos
 
 /**
  * Executes a delay command.
