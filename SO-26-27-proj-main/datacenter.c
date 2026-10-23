@@ -26,13 +26,12 @@ void datacenter_destroy(DataCenter *dc) {
     for(size_t j = 0; j < dc->servers[i].num_hosted_vms; j++){
       free(dc->servers[i].hosted_vms[j]);
     }
+    //necessário destruir o trinco presente para as reservas
     pthread_mutex_destroy(&dc->servers[i].lock);
   }
-  /**for(size_t i = 0; i < dc->num_reservations; i++){
-    free(&dc->reservations[i]);
-  }
-  */
+  //liberatra a memória alocada nas reservas
   free(dc->servers);
+  //"destruição" dos trincos presentes
   pthread_rwlock_destroy(&dc->types_lock);
   pthread_mutex_destroy(&dc->reservations_lock);
 }
@@ -84,13 +83,15 @@ int datacenter_define_VM(DataCenter *dc, VMType *type){
     fprintf(stderr, "Invalid input folder.\n");
     return 1;
   }
+  //necessário transformar o caminho relativo, realizado pelo chdir, em absoluto
   char abs_exec_path[MAX_PATH_SIZE];
   if (absolute_path(type->exec_path, abs_exec_path, sizeof(abs_exec_path)) != 0) {
       fprintf(stderr, "Failed to resolve absolute path for executable.\n");
       return 1;
   }
   strcpy(type->exec_path, abs_exec_path);
-  //seccção crítica que envolve a mpdificação da variável vm_types
+
+  //seccção crítica que envolve a mpdificação da lista de vm_types
   pthread_rwlock_wrlock(&dc->types_lock);
   if(VMType_exists(dc, type->id) != NULL){
     pthread_rwlock_unlock(&dc->types_lock);
@@ -114,26 +115,30 @@ int datacenter_reserve(DataCenter *dc, Reservation *reservation) {
     fprintf(stderr, "Data Center needs to be configured!\n");
     return 1;
   }
+  //secção crítica - objetivo: proteger a lista de reservas
   pthread_mutex_lock(&dc->reservations_lock);
   if(reservation_validate(dc, reservation) != 0){
+    //liberta trinco em caso de erro
     pthread_mutex_unlock(&dc->reservations_lock);
     return 1;
   }
 
   if (dc->num_reservations >= MAX_RESERVATIONS){
     fprintf(stderr, "Max number of reservations reached\n");
+    //liberta trinco em caso de erro
     pthread_mutex_unlock(&dc->reservations_lock);
     return 1;
   }
 
   if (reservation_commit(dc, reservation) != 0){
+    //liberta trinco em caso de erro
     pthread_mutex_unlock(&dc->reservations_lock);
     return 1;
   }
 
   dc->reservations[dc->num_reservations] = *reservation;
   dc->num_reservations++;
-
+  //liberta trinco em caso de sucesso
   pthread_mutex_unlock(&dc->reservations_lock);
   return 0;
 }
@@ -143,37 +148,45 @@ int datacenter_execute(DataCenter *dc, const char *reservation_id, double cores)
     fprintf(stderr, "Data Center needs to be configured!\n");
     return 1;
   }
-  
+  //secção crítica- objetivo: encontra e prepara a reserva
   pthread_mutex_lock(&dc->reservations_lock);
   Reservation *res = find_pending_reservation(dc, reservation_id);
   if (!res) {
+    //se a reserva não for encontrada, deve- se libertar o trinco
     pthread_mutex_unlock(&dc->reservations_lock);
     return 1;
   }
   if (spawn_all_vms(res, dc, cores) != 0) {
+    //libertar o trinco caso dê erro
     pthread_mutex_unlock(&dc->reservations_lock);
     return 1;
   }
   
   res->state = RES_STATE_RUNNING;
 
-  // Criar uma thread em background para fazer o wait e limpeza sem bloquear o comando A
+  //alocação de memória para a estrutura ExecutionArgs
   ExecutionArgs *ex_arg = malloc(sizeof(ExecutionArgs));
+  //se falhar a alocação, originar erro
   if (!ex_arg) {
+    //libertar trinco(erro)
     pthread_mutex_unlock(&dc->reservations_lock);
     return 1;
   }
+  //preenchimento da estrutura com os dados pretendidos
   ex_arg->dc = dc;
   ex_arg->res = res;
 
   pthread_t tid;
+  //criação de uma nova tarefa que faz a limpeza e a espera das VMS em "background"
   if (pthread_create(&tid, NULL, execution_thread, ex_arg) != 0) {
     free(ex_arg);
+    //liberta trinco em caso de erro
     pthread_mutex_unlock(&dc->reservations_lock);
     return 1;
   }
+  //liberta e apaga todos os recursos da tarefa
   pthread_detach(tid);
-
+  //libertar trinco quando a tarefa já terminou (sucesso)
   pthread_mutex_unlock(&dc->reservations_lock);
   return 0;
 }
@@ -290,13 +303,16 @@ void *execution_thread( void *arg){
   ExecutionArgs *args = (ExecutionArgs *) arg;
   DataCenter*dc = args->dc;
   Reservation *res = args->res;
+
+  //libertar a memória alocada pela estrutura ExecutionArgs
   free(args);
 
-  //espera que a thread termine
+  //espera que todas as threads da VM terminem
   wait_for_all_vms(res,dc);
 
   //quando as tarefas terminem, é necessário através de uma secção crítica "limpar" as reservas
   pthread_mutex_lock(&dc->reservations_lock);
+  //atualização do estado
   res->state = RES_STATE_FINISHED;
   reservation_destroy(dc,res);
   pthread_mutex_unlock(&dc->reservations_lock);

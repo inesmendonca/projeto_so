@@ -119,7 +119,20 @@ const char *vm_state_to_string(VMState state);
  */
 const char *res_state_to_string(ReservationState state);
 
+/**
+* Verifica se é possível originar uma nova diretoria, fazendo verificação de erros
+* @param path- que representa o caminho em questão
+*
+* @return 0 - caso seja válido, 1 - caso seja inválido (erro) */
 int make_dir(const char *path);
+
+/**
+*Origina a diretoria de destino em que vão estar presentes os ficheiros copiados recursivamente
+*@param res- ponteiro para a estrutura Reservation
+*@param vm- ponteiro para a estrutura VM
+
+*@return copiadiretoria , chama recursivamente a função para efetuar a cópia pretendida*, em caso de sucesso
+em caso de erro, retorna 1 (inválido)*/
 int originy_vm_dir(Reservation *res, VM *vm);
 
 

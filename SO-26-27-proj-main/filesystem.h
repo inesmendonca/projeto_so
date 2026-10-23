@@ -34,6 +34,7 @@ int file_exists(const char *path);
  * @return 1 if the path could not be resolved or the buffer is too small.
  */
 int absolute_path(const char *path, char *buffer, size_t size);
+
 int copiaficheiro(const char *origem, const char *destino);
 int copiadiretoria(const char *origem, const char *destino);
 

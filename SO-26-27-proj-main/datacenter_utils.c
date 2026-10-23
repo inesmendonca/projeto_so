@@ -240,6 +240,7 @@ void reservation_destroy(DataCenter *dc, Reservation *reservation) {
 }
 
 int make_dir(const char *path){
+	// a diretoria necessita de ter as permissões adequadas e pode existir devido à existência de múltiplas reservas 
 	if(mkdir(path,0755) && errno != EEXIST){
 		return 1;
 	}
@@ -247,42 +248,53 @@ int make_dir(const char *path){
 }
 
 int originy_vm_dir(Reservation *res, VM *vm){
+	//criação da diretoria de destino
 	char first_path[MAX_PATH_SIZE];
 	char vm_destino[MAX_PATH_SIZE + MAX_VM_ID_STRING];
 	snprintf(first_path,sizeof(first_path),"%s/%s",CLOUD_IST,res->id);
 	snprintf(vm_destino,sizeof(vm_destino),"%s/%s",first_path,vm->id);
+	//caso dê erro ao criar as diretorais necessárias, deve-se retornar 1
 	if(make_dir(CLOUD_IST) != 0|| make_dir(first_path) != 0 || make_dir(vm_destino) != 0  ){
 		return 1;
 	}
+	//chamada recursiva à função copiadiretorai
 	return copiadiretoria(vm->type->input_folder, vm_destino);
 }
 
 void spawn_vm_child(VM *vm, DataCenter *dc, double cores) { 
 	(void)vm; // To avoid warning.
+	// necessário definir os limites da RAM  na estrutura rlimit
+	//operação bit a bit <<30 para converter GB para bytes (GB->2^30)
 	struct rlimit lim_ram;
-	lim_ram.rlim_cur = vm->type->required.ram <<30;  //define os limites da RAM, como a RAM está em GB e como GB é 2^30 temos de transformar em bytes
+	lim_ram.rlim_cur = vm->type->required.ram <<30;  
 	lim_ram.rlim_max = vm->type->required.ram <<30;
-
+	//impõe o limite da ram 
 	if (setrlimit(RLIMIT_AS,&lim_ram) < 0) {
 		perror("setrlimit failed");
 		return;
 	}
+	// necessário definir os limites do disco  na estrutura rlimit
+	//operação bit a bit <<30 para converter GB para bytes (GB->2^30)
 	struct rlimit lim_disk;
 	lim_disk.rlim_cur = vm->type->required.disk <<30;  //define os limites do disk
 	lim_disk.rlim_max = vm->type->required.disk <<30;
+	//impõe o limite do disco
 	if (setrlimit(RLIMIT_FSIZE,&lim_disk) < 0) {
 		perror("setrlimit failed");
 		return;
 	}
-	double max_limit=100.0*cores;
-	double cpu_limit = (100.0*vm->type->required.cpu*cores)/((double)vm->server->total.cpu*(double)dc->num_servers);
-	if (cpu_limit>max_limit) {
-		cpu_limit=max_limit;
+	//cálculo do limite de cpu com base na fórmual fornecida
+	double max_limit = 100.0 * cores;
+	double cpu_limit = (100.0 * vm->type->required.cpu*cores)/((double)vm->server->total.cpu*(double)dc->num_servers);
+	if (cpu_limit > max_limit) {
+		cpu_limit = max_limit;
 	}
+	//transformar o limite de cpu em string
 	char cpu_limit_str[MAX_STRING_SIZE];
 	snprintf(cpu_limit_str, sizeof(cpu_limit_str), "%.2f", cpu_limit);
 
-	execlp("cpulimit", "cpulimit","-q","-f","-l", cpu_limit_str,"--", vm->type->exec_path, (char*) NULL); //o primeiro comando indica qual o programa se vai executar e o segundo corresponde ao argv[0]
+	//comandos de input(o primeiro comando indica qual o programa se vai executar e o segundo corresponde ao argv[0])
+	execlp("cpulimit", "cpulimit","-q","-f","-l", cpu_limit_str,"--", vm->type->exec_path, (char*) NULL); 
 
 	fprintf(stderr, "VM execution not implemented in base version.\n");
 	perror("execlp failed");
@@ -291,7 +303,7 @@ void spawn_vm_child(VM *vm, DataCenter *dc, double cores) {
 int spawn_all_vms(Reservation *res, DataCenter *dc, double cores) { 
 	for (size_t i = 0; i < res->num_vms; i++) {
 		VM *vm = res->vms[i];
-		
+		//necessiat de originar a diretoria de destino para a VM
 		if(originy_vm_dir(res,vm) != 0){
 			perror("Erro ao originar a diretoria de destino para a VM");
 			return 1;
@@ -316,7 +328,7 @@ int spawn_all_vms(Reservation *res, DataCenter *dc, double cores) {
 			spawn_vm_child(vm, dc, cores);
 			exit(EXIT_FAILURE);
 			break;
-		default: 
+		default: //caso seja um pai
 			vm->pid=childPid;
 			vm->state=VM_STATE_RUNNING;
 			break;
@@ -327,9 +339,11 @@ int spawn_all_vms(Reservation *res, DataCenter *dc, double cores) {
 
 void wait_for_all_vms(Reservation *res, DataCenter *dc) {
 	int status;
+	//percorre todas as vms presentes na reserva
 	for (size_t i = 0; i < res->num_vms; i++) {
 		if (waitpid(res->vms[i]->pid, &status, 0) == -1)
             return;
+		//atualiza o estado da VM para TERMINATED dentro de uma secção crítica
 		pthread_mutex_lock(&dc->reservations_lock);
 		res->vms[i]->state = VM_STATE_TERMINATED;
 		pthread_mutex_unlock(&dc->reservations_lock);
