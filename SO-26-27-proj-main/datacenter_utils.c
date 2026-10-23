@@ -287,16 +287,6 @@ void spawn_vm_child(Reservation *res, VM *vm, DataCenter *dc, double cores) {
 	char vm_dir[MAX_PATH_SIZE + MAX_VM_ID_STRING];               //tem o caminho, que é necessário para o sript conseguir encontrar os seus ficheiros
 	snprintf(vm_dir,sizeof(vm_dir),"%s/%s/%s",CLOUD_IST, res->id,vm->id);
 
-	char abs_path[MAX_PATH_SIZE]; //contem o caminho do script
-	if (realpath(vm->type->exec_path, abs_path)==NULL) { 
-		perror("realpath failed");
-		_exit(EXIT_FAILURE);
-	}
-	if (chdir(vm_dir)!=0) {
-		perror("chdir failed");
-		exit(EXIT_FAILURE);
-	}
-
 	execlp("cpulimit", "cpulimit","-q","-f","-l", cpu_limit_str,"--", abs_path, (char*) NULL); //o primeiro comando indica qual o programa se vai executar e o segundo corresponde ao argv[0]
 
 	fprintf(stderr, "VM execution not implemented in base version.\n");
@@ -320,7 +310,7 @@ int spawn_all_vms(Reservation *res, DataCenter *dc, double cores) {
 		case 0:
 			spawn_vm_child(res,vm,dc,cores);
 			exit(EXIT_FAILURE);
-		default: //colocar trinco
+		default: 
 			vm->pid=childPid;
 			vm->state=VM_STATE_RUNNING;
 			break;
