@@ -84,7 +84,12 @@ int datacenter_define_VM(DataCenter *dc, VMType *type){
     fprintf(stderr, "Invalid input folder.\n");
     return 1;
   }
-
+  char abs_exec_path[MAX_PATH_SIZE];
+  if (absolute_path(type->exec_path, abs_exec_path, sizeof(abs_exec_path)) != 0) {
+      fprintf(stderr, "Failed to resolve absolute path for executable.\n");
+      return 1;
+  }
+  strcpy(type->exec_path, abs_exec_path);
   //seccção crítica que envolve a mpdificação da variável vm_types
   pthread_rwlock_wrlock(&dc->types_lock);
   if(VMType_exists(dc, type->id) != NULL){
@@ -138,26 +143,36 @@ int datacenter_execute(DataCenter *dc, const char *reservation_id, double cores)
     fprintf(stderr, "Data Center needs to be configured!\n");
     return 1;
   }
+  
   pthread_mutex_lock(&dc->reservations_lock);
   Reservation *res = find_pending_reservation(dc, reservation_id);
   if (!res) {
     pthread_mutex_unlock(&dc->reservations_lock);
     return 1;
   }
-
-  if (spawn_all_vms(res,dc,cores) != 0) {
+  if (spawn_all_vms(res, dc, cores) != 0) {
     pthread_mutex_unlock(&dc->reservations_lock);
     return 1;
   }
+  
   res->state = RES_STATE_RUNNING;
-  pthread_mutex_unlock(&dc->reservations_lock);
 
-  wait_for_all_vms(res,dc);
+  // Criar uma thread em background para fazer o wait e limpeza sem bloquear o comando A
+  ExecutionArgs *ex_arg = malloc(sizeof(ExecutionArgs));
+  if (!ex_arg) {
+    pthread_mutex_unlock(&dc->reservations_lock);
+    return 1;
+  }
+  ex_arg->dc = dc;
+  ex_arg->res = res;
 
-  pthread_mutex_lock(&dc->reservations_lock);
-
-  res->state = RES_STATE_FINISHED;
-  reservation_destroy(dc, res);
+  pthread_t tid;
+  if (pthread_create(&tid, NULL, execution_thread, ex_arg) != 0) {
+    free(ex_arg);
+    pthread_mutex_unlock(&dc->reservations_lock);
+    return 1;
+  }
+  pthread_detach(tid);
 
   pthread_mutex_unlock(&dc->reservations_lock);
   return 0;
@@ -269,4 +284,21 @@ int datacenter_list(DataCenter *dc) {
 void datacenter_wait(unsigned int delay_ms){
   struct timespec delay = (struct timespec){delay_ms / 1000, (delay_ms % 1000) * 1000000};
   nanosleep(&delay, NULL);
+}
+
+void *execution_thread( void *arg){
+  ExecutionArgs *args = (ExecutionArgs *) arg;
+  DataCenter*dc = args->dc;
+  Reservation *res = args->res;
+  free(args);
+
+  //espera que a thread termine
+  wait_for_all_vms(res,dc);
+
+  //quando as tarefas terminem, é necessário através de uma secção crítica "limpar" as reservas
+  pthread_mutex_lock(&dc->reservations_lock);
+  res->state = RES_STATE_FINISHED;
+  reservation_destroy(dc,res);
+  pthread_mutex_unlock(&dc->reservations_lock);
+  return NULL;
 }

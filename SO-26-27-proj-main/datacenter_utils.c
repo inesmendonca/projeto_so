@@ -303,8 +303,19 @@ int spawn_all_vms(Reservation *res, DataCenter *dc, double cores) {
         	perror("fork");
         	return 1;
 		case 0:
-			spawn_vm_child(vm,dc,cores);
+			// Construir o caminho da diretoria da VM
+			char vm_destino[MAX_PATH_SIZE + MAX_VM_ID_STRING];
+			snprintf(vm_destino, sizeof(vm_destino), "%s/%s/%s", CLOUD_IST, res->id, vm->id);
+			
+			// Mudar a diretoria de trabalho do processo filho para a pasta da VM
+			if (chdir(vm_destino) != 0) {
+				perror("chdir failed");
+				exit(EXIT_FAILURE);
+			}
+
+			spawn_vm_child(vm, dc, cores);
 			exit(EXIT_FAILURE);
+			break;
 		default: 
 			vm->pid=childPid;
 			vm->state=VM_STATE_RUNNING;

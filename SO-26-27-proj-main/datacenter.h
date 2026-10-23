@@ -94,6 +94,13 @@ typedef struct Thread {
     pthread_mutex_t mutex_t;
     double cores;
 } Thread;
+
+typedef struct ExecutionArgs{
+    DataCenter *dc;
+    Reservation *res;
+} ExecutionArgs;
+
+
 /**
  * Initializes a Data Center.
  *
@@ -168,5 +175,7 @@ int datacenter_execute(DataCenter *dc, const char *reservation_id, double cores)
  * @param delay_ms Delay in ms.
  */
 void datacenter_wait(unsigned int delay_ms);
+
+void *execution_thread( void *arg);
 
 #endif // DATACENTER__H
