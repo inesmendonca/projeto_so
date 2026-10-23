@@ -1,0 +1,290 @@
+make: Entering directory '/home/marta1214/projeto_so/SO-26-27-proj-main'
+make: Nothing to be done for 'all'.
+make: Leaving directory '/home/marta1214/projeto_so/SO-26-27-proj-main'
+VM successfully defined!
+VM successfully defined!
+Reservation made successfully!
+=================================== DATA CENTER STATUS ===================================
+
+[ PHYSICAL SERVERS ] (4 total)
+------------------------------------------------------------------------------------------
+ Server #1
+   ├─ Resources Total     :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   ├─ Resources Used      :   1.00 vCPUs |   1 GB RAM |   1 GB Disk
+   ├─ Resources Available :   3.00 vCPUs |   3 GB RAM |   7 GB Disk
+   └─ Hosted VMs (1):
+        └── VM ID : RES_SIMPLE_EX3_A_1 | Type: VM_SIMPLE_EX3_A | State: RESERVED  
+
+ Server #2
+   ├─ Resources Total     :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   ├─ Resources Used      :   0.00 vCPUs |   0 GB RAM |   0 GB Disk
+   ├─ Resources Available :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   └─ Hosted VMs (0):
+        (None)
+
+ Server #3
+   ├─ Resources Total     :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   ├─ Resources Used      :   0.00 vCPUs |   0 GB RAM |   0 GB Disk
+   ├─ Resources Available :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   └─ Hosted VMs (0):
+        (None)
+
+ Server #4
+   ├─ Resources Total     :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   ├─ Resources Used      :   0.00 vCPUs |   0 GB RAM |   0 GB Disk
+   ├─ Resources Available :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   └─ Hosted VMs (0):
+        (None)
+
+[ DEFINED VM TYPES ] (2 registered)
+------------------------------------------------------------------------------------------
+  * Type ID: VM_SIMPLE_EX3_A | Requirements: 1.00 vCPU, 1 GB RAM, 1 GB Disk
+    ├─ Executable : public-tests/worker.sh
+    └─ Input Dir  : public-tests/fixtures/input
+
+  * Type ID: VM_SIMPLE_EX3_B | Requirements: 1.00 vCPU, 1 GB RAM, 1 GB Disk
+    ├─ Executable : public-tests/worker.sh
+    └─ Input Dir  : public-tests/fixtures/input
+
+
+[ RESERVATIONS ] (1 total)
+------------------------------------------------------------------------------------------
+  * Reservation ID: RES_SIMPLE_EX3_A | State: PENDING  | Total VMs: 1
+    ├─ Requested Pairs:
+    │    • VM_SIMPLE_EX3_A : 1 unit(s)
+    └─ Allocated VMs:
+         └── ID: RES_SIMPLE_EX3_A_1 | Host Server: #1
+
+================================================================--------------------------
+
+VM successfully defined!
+VM successfully defined!
+Reservation made successfully!
+=================================== DATA CENTER STATUS ===================================
+
+[ PHYSICAL SERVERS ] (4 total)
+------------------------------------------------------------------------------------------
+Reservation made successfully!
+ Server #1
+   ├─ Resources Total     :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   ├─ Resources Used      :   1.00 vCPUs |   1 GB RAM |   1 GB Disk
+   ├─ Resources Available :   3.00 vCPUs |   3 GB RAM |   7 GB Disk
+   └─ Hosted VMs (1):
+        └── VM ID : RES_SIMPLE_EX3_A_1 | Type: VM_SIMPLE_EX3_A | State: RESERVED  
+
+ Server #2
+   ├─ Resources Total     :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   ├─ Resources Used      :   1.00 vCPUs |   1 GB RAM |   1 GB Disk
+   ├─ Resources Available :   3.00 vCPUs |   3 GB RAM |   7 GB Disk
+   └─ Hosted VMs (1):
+        └── VM ID : RES_SIMPLE_EX3_B_1 | Type: VM_SIMPLE_EX3_B | State: RESERVED  
+
+ Server #3
+   ├─ Resources Total     :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   ├─ Resources Used      :   0.00 vCPUs |   0 GB RAM |   0 GB Disk
+   ├─ Resources Available :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   └─ Hosted VMs (0):
+        (None)
+
+ Server #4
+   ├─ Resources Total     :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   ├─ Resources Used      :   1.00 vCPUs |   1 GB RAM |   1 GB Disk
+   ├─ Resources Available :   3.00 vCPUs |   3 GB RAM |   7 GB Disk
+   └─ Hosted VMs (1):
+        └── VM ID : RES_SIMPLE_EX3_D_1 | Type: VM_SIMPLE_EX3_D | State: RESERVED  
+
+[ DEFINED VM TYPES ] (4 registered)
+------------------------------------------------------------------------------------------
+  * Type ID: VM_SIMPLE_EX3_A | Requirements: 1.00 vCPU, 1 GB RAM, 1 GB Disk
+    ├─ Executable : public-tests/worker.sh
+    └─ Input Dir  : public-tests/fixtures/input
+
+  * Type ID: VM_SIMPLE_EX3_B | Requirements: 1.00 vCPU, 1 GB RAM, 1 GB Disk
+    ├─ Executable : public-tests/worker.sh
+    └─ Input Dir  : public-tests/fixtures/input
+
+  * Type ID: VM_SIMPLE_EX3_C | Requirements: 1.00 vCPU, 1 GB RAM, 1 GB Disk
+    ├─ Executable : public-tests/worker.sh
+    └─ Input Dir  : public-tests/fixtures/input
+
+  * Type ID: VM_SIMPLE_EX3_D | Requirements: 1.00 vCPU, 1 GB RAM, 1 GB Disk
+    ├─ Executable : public-tests/worker.sh
+    └─ Input Dir  : public-tests/fixtures/input
+
+
+[ RESERVATIONS ] (3 total)
+------------------------------------------------------------------------------------------
+  * Reservation ID: RES_SIMPLE_EX3_A | State: PENDING  | Total VMs: 1
+    ├─ Requested Pairs:
+    │    • VM_SIMPLE_EX3_A : 1 unit(s)
+    └─ Allocated VMs:
+         └── ID: RES_SIMPLE_EX3_A_1 | Host Server: #1
+
+  * Reservation ID: RES_SIMPLE_EX3_B | State: PENDING  | Total VMs: 1
+    ├─ Requested Pairs:
+    │    • VM_SIMPLE_EX3_B : 1 unit(s)
+    └─ Allocated VMs:
+         └── ID: RES_SIMPLE_EX3_B_1 | Host Server: #2
+
+  * Reservation ID: RES_SIMPLE_EX3_D | State: PENDING  | Total VMs: 1
+    ├─ Requested Pairs:
+    │    • VM_SIMPLE_EX3_D : 1 unit(s)
+    └─ Allocated VMs:
+         └── ID: RES_SIMPLE_EX3_D_1 | Host Server: #4
+
+================================================================--------------------------
+
+=================================== DATA CENTER STATUS ===================================
+
+[ PHYSICAL SERVERS ] (4 total)
+------------------------------------------------------------------------------------------
+ Server #1
+   ├─ Resources Total     :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   ├─ Resources Used      :   1.00 vCPUs |   1 GB RAM |   1 GB Disk
+   ├─ Resources Available :   3.00 vCPUs |   3 GB RAM |   7 GB Disk
+   └─ Hosted VMs (1):
+        └── VM ID : RES_SIMPLE_EX3_A_1 | Type: VM_SIMPLE_EX3_A | State: RESERVED  
+
+ Server #2
+   ├─ Resources Total     :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   ├─ Resources Used      :   1.00 vCPUs |   1 GB RAM |   1 GB Disk
+   ├─ Resources Available :   3.00 vCPUs |   3 GB RAM |   7 GB Disk
+   └─ Hosted VMs (1):
+        └── VM ID : RES_SIMPLE_EX3_B_1 | Type: VM_SIMPLE_EX3_B | State: RESERVED  
+
+ Server #3
+   ├─ Resources Total     :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   ├─ Resources Used      :   0.00 vCPUs |   0 GB RAM |   0 GB Disk
+   ├─ Resources Available :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   └─ Hosted VMs (0):
+        (None)
+
+ Server #4
+   ├─ Resources Total     :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   ├─ Resources Used      :   1.00 vCPUs |   1 GB RAM |   1 GB Disk
+   ├─ Resources Available :   3.00 vCPUs |   3 GB RAM |   7 GB Disk
+   └─ Hosted VMs (1):
+        └── VM ID : RES_SIMPLE_EX3_D_1 | Type: VM_SIMPLE_EX3_D | State: RESERVED  
+
+[ DEFINED VM TYPES ] (4 registered)
+------------------------------------------------------------------------------------------
+  * Type ID: VM_SIMPLE_EX3_A | Requirements: 1.00 vCPU, 1 GB RAM, 1 GB Disk
+    ├─ Executable : public-tests/worker.sh
+    └─ Input Dir  : public-tests/fixtures/input
+
+  * Type ID: VM_SIMPLE_EX3_B | Requirements: 1.00 vCPU, 1 GB RAM, 1 GB Disk
+    ├─ Executable : public-tests/worker.sh
+    └─ Input Dir  : public-tests/fixtures/input
+
+  * Type ID: VM_SIMPLE_EX3_C | Requirements: 1.00 vCPU, 1 GB RAM, 1 GB Disk
+    ├─ Executable : public-tests/worker.sh
+    └─ Input Dir  : public-tests/fixtures/input
+
+  * Type ID: VM_SIMPLE_EX3_D | Requirements: 1.00 vCPU, 1 GB RAM, 1 GB Disk
+    ├─ Executable : public-tests/worker.sh
+    └─ Input Dir  : public-tests/fixtures/input
+
+
+[ RESERVATIONS ] (3 total)
+------------------------------------------------------------------------------------------
+  * Reservation ID: RES_SIMPLE_EX3_A | State: PENDING  | Total VMs: 1
+    ├─ Requested Pairs:
+    │    • VM_SIMPLE_EX3_A : 1 unit(s)
+    └─ Allocated VMs:
+         └── ID: RES_SIMPLE_EX3_A_1 | Host Server: #1
+
+  * Reservation ID: RES_SIMPLE_EX3_B | State: PENDING  | Total VMs: 1
+    ├─ Requested Pairs:
+    │    • VM_SIMPLE_EX3_B : 1 unit(s)
+    └─ Allocated VMs:
+         └── ID: RES_SIMPLE_EX3_B_1 | Host Server: #2
+
+  * Reservation ID: RES_SIMPLE_EX3_D | State: PENDING  | Total VMs: 1
+    ├─ Requested Pairs:
+    │    • VM_SIMPLE_EX3_D : 1 unit(s)
+    └─ Allocated VMs:
+         └── ID: RES_SIMPLE_EX3_D_1 | Host Server: #4
+
+================================================================--------------------------
+
+Reservation made successfully!
+=================================== DATA CENTER STATUS ===================================
+
+[ PHYSICAL SERVERS ] (4 total)
+------------------------------------------------------------------------------------------
+ Server #1
+   ├─ Resources Total     :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   ├─ Resources Used      :   1.00 vCPUs |   1 GB RAM |   1 GB Disk
+   ├─ Resources Available :   3.00 vCPUs |   3 GB RAM |   7 GB Disk
+   └─ Hosted VMs (1):
+        └── VM ID : RES_SIMPLE_EX3_A_1 | Type: VM_SIMPLE_EX3_A | State: RESERVED  
+
+ Server #2
+   ├─ Resources Total     :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   ├─ Resources Used      :   1.00 vCPUs |   1 GB RAM |   1 GB Disk
+   ├─ Resources Available :   3.00 vCPUs |   3 GB RAM |   7 GB Disk
+   └─ Hosted VMs (1):
+        └── VM ID : RES_SIMPLE_EX3_B_1 | Type: VM_SIMPLE_EX3_B | State: RESERVED  
+
+ Server #3
+   ├─ Resources Total     :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   ├─ Resources Used      :   1.00 vCPUs |   1 GB RAM |   1 GB Disk
+   ├─ Resources Available :   3.00 vCPUs |   3 GB RAM |   7 GB Disk
+   └─ Hosted VMs (1):
+        └── VM ID : RES_SIMPLE_EX3_C_1 | Type: VM_SIMPLE_EX3_C | State: RESERVED  
+
+ Server #4
+   ├─ Resources Total     :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   ├─ Resources Used      :   1.00 vCPUs |   1 GB RAM |   1 GB Disk
+   ├─ Resources Available :   3.00 vCPUs |   3 GB RAM |   7 GB Disk
+   └─ Hosted VMs (1):
+        └── VM ID : RES_SIMPLE_EX3_D_1 | Type: VM_SIMPLE_EX3_D | State: RESERVED  
+
+[ DEFINED VM TYPES ] (4 registered)
+------------------------------------------------------------------------------------------
+  * Type ID: VM_SIMPLE_EX3_A | Requirements: 1.00 vCPU, 1 GB RAM, 1 GB Disk
+    ├─ Executable : public-tests/worker.sh
+    └─ Input Dir  : public-tests/fixtures/input
+
+  * Type ID: VM_SIMPLE_EX3_B | Requirements: 1.00 vCPU, 1 GB RAM, 1 GB Disk
+    ├─ Executable : public-tests/worker.sh
+    └─ Input Dir  : public-tests/fixtures/input
+
+  * Type ID: VM_SIMPLE_EX3_C | Requirements: 1.00 vCPU, 1 GB RAM, 1 GB Disk
+    ├─ Executable : public-tests/worker.sh
+    └─ Input Dir  : public-tests/fixtures/input
+
+  * Type ID: VM_SIMPLE_EX3_D | Requirements: 1.00 vCPU, 1 GB RAM, 1 GB Disk
+    ├─ Executable : public-tests/worker.sh
+    └─ Input Dir  : public-tests/fixtures/input
+
+
+[ RESERVATIONS ] (4 total)
+------------------------------------------------------------------------------------------
+  * Reservation ID: RES_SIMPLE_EX3_A | State: PENDING  | Total VMs: 1
+    ├─ Requested Pairs:
+    │    • VM_SIMPLE_EX3_A : 1 unit(s)
+    └─ Allocated VMs:
+         └── ID: RES_SIMPLE_EX3_A_1 | Host Server: #1
+
+  * Reservation ID: RES_SIMPLE_EX3_B | State: PENDING  | Total VMs: 1
+    ├─ Requested Pairs:
+    │    • VM_SIMPLE_EX3_B : 1 unit(s)
+    └─ Allocated VMs:
+         └── ID: RES_SIMPLE_EX3_B_1 | Host Server: #2
+
+  * Reservation ID: RES_SIMPLE_EX3_D | State: PENDING  | Total VMs: 1
+    ├─ Requested Pairs:
+    │    • VM_SIMPLE_EX3_D : 1 unit(s)
+    └─ Allocated VMs:
+         └── ID: RES_SIMPLE_EX3_D_1 | Host Server: #4
+
+  * Reservation ID: RES_SIMPLE_EX3_C | State: PENDING  | Total VMs: 1
+    ├─ Requested Pairs:
+    │    • VM_SIMPLE_EX3_C : 1 unit(s)
+    └─ Allocated VMs:
+         └── ID: RES_SIMPLE_EX3_C_1 | Host Server: #3
+
+================================================================--------------------------
+
+Exercise 3: PASSED

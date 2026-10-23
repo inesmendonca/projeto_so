@@ -1,10 +1,8 @@
-#define _XOPEN_SOURCE 700  // não sei se podesse
 #include "datacenter_utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <limits.h>
 #include <sys/wait.h>
 #include <sys/resource.h>
 #include <errno.h>
@@ -259,7 +257,7 @@ int originy_vm_dir(Reservation *res, VM *vm){
 	return copiadiretoria(vm->type->input_folder, vm_destino);
 }
 
-void spawn_vm_child(Reservation *res, VM *vm, DataCenter *dc, double cores) { 
+void spawn_vm_child(VM *vm, DataCenter *dc, double cores) { 
 	(void)vm; // To avoid warning.
 	struct rlimit lim_ram;
 	lim_ram.rlim_cur = vm->type->required.ram <<30;  //define os limites da RAM, como a RAM está em GB e como GB é 2^30 temos de transformar em bytes
@@ -284,10 +282,7 @@ void spawn_vm_child(Reservation *res, VM *vm, DataCenter *dc, double cores) {
 	char cpu_limit_str[MAX_STRING_SIZE];
 	snprintf(cpu_limit_str, sizeof(cpu_limit_str), "%.2f", cpu_limit);
 
-	char vm_dir[MAX_PATH_SIZE + MAX_VM_ID_STRING];               //tem o caminho, que é necessário para o sript conseguir encontrar os seus ficheiros
-	snprintf(vm_dir,sizeof(vm_dir),"%s/%s/%s",CLOUD_IST, res->id,vm->id);
-
-	execlp("cpulimit", "cpulimit","-q","-f","-l", cpu_limit_str,"--", abs_path, (char*) NULL); //o primeiro comando indica qual o programa se vai executar e o segundo corresponde ao argv[0]
+	execlp("cpulimit", "cpulimit","-q","-f","-l", cpu_limit_str,"--", vm->type->exec_path, (char*) NULL); //o primeiro comando indica qual o programa se vai executar e o segundo corresponde ao argv[0]
 
 	fprintf(stderr, "VM execution not implemented in base version.\n");
 	perror("execlp failed");
@@ -308,7 +303,7 @@ int spawn_all_vms(Reservation *res, DataCenter *dc, double cores) {
         	perror("fork");
         	return 1;
 		case 0:
-			spawn_vm_child(res,vm,dc,cores);
+			spawn_vm_child(vm,dc,cores);
 			exit(EXIT_FAILURE);
 		default: 
 			vm->pid=childPid;

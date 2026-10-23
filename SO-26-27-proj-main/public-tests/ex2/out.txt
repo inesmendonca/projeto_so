@@ -1,0 +1,57 @@
+make: Entering directory '/home/marta1214/projeto_so/SO-26-27-proj-main'
+make: Nothing to be done for 'all'.
+make: Leaving directory '/home/marta1214/projeto_so/SO-26-27-proj-main'
+chdir -> /tmp/CloudIST//RES_SIMPLE_EX2/RES_SIMPLE_EX2_1
+VM successfully defined!
+Reservation made successfully!
+Finished reservation execution!
+=================================== DATA CENTER STATUS ===================================
+
+[ PHYSICAL SERVERS ] (1 total)
+------------------------------------------------------------------------------------------
+ Server #1
+   ├─ Resources Total     :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   ├─ Resources Used      :   0.00 vCPUs |   0 GB RAM |   0 GB Disk
+   ├─ Resources Available :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   └─ Hosted VMs (0):
+        (None)
+
+[ DEFINED VM TYPES ] (1 registered)
+------------------------------------------------------------------------------------------
+  * Type ID: VM_SIMPLE_EX2 | Requirements: 1.00 vCPU, 1 GB RAM, 1 GB Disk
+    ├─ Executable : public-tests/ex2/relative_path_worker.sh
+    └─ Input Dir  : public-tests/fixtures/input
+
+
+[ RESERVATIONS ] (0 total)
+------------------------------------------------------------------------------------------
+ (None)
+
+================================================================--------------------------
+
+=================================== DATA CENTER STATUS ===================================
+
+[ PHYSICAL SERVERS ] (1 total)
+------------------------------------------------------------------------------------------
+ Server #1
+   ├─ Resources Total     :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   ├─ Resources Used      :   0.00 vCPUs |   0 GB RAM |   0 GB Disk
+   ├─ Resources Available :   4.00 vCPUs |   4 GB RAM |   8 GB Disk
+   └─ Hosted VMs (0):
+        (None)
+
+[ DEFINED VM TYPES ] (1 registered)
+------------------------------------------------------------------------------------------
+  * Type ID: VM_SIMPLE_EX2 | Requirements: 1.00 vCPU, 1 GB RAM, 1 GB Disk
+    ├─ Executable : public-tests/ex2/relative_path_worker.sh
+    └─ Input Dir  : public-tests/fixtures/input
+
+
+[ RESERVATIONS ] (0 total)
+------------------------------------------------------------------------------------------
+ (None)
+
+================================================================--------------------------
+
+Exercise 2: the worker did not confirm the copied input file. It may not have started, or the input copy/path may be wrong.
+Exercise 2: FAILED
