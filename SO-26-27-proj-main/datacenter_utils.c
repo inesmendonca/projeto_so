@@ -316,15 +316,13 @@ int spawn_all_vms(Reservation *res, DataCenter *dc, double cores) {
 		
 		case -1: /* error */
         	perror("fork");
-        	exit(EXIT_FAILURE);
+        	return 1;
 		case 0:
 			spawn_vm_child(res,vm,dc,cores);
 			exit(EXIT_FAILURE);
 		default: //colocar trinco
-	        pthread_mutex_lock(&dc->reservations_lock);
 			vm->pid=childPid;
 			vm->state=VM_STATE_RUNNING;
-			pthread_mutex_unlock(&dc->reservations_lock);
 			break;
 		}
 	}
