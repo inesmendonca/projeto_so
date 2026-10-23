@@ -11,11 +11,12 @@
 #include <pthread.h>
 
 int main(int argc, char **argv){
+
 	DataCenter dc;
 	datacenter_init(&dc);
 
 	if (argc != 8) {
-    fprintf(stderr, "Usage: %s <servers> <ram> <disk> <cpus> <INPUT_DIR> <cores-da-maquina-local-seleccionados-para-o-CloudIST> <MAX_THREADS>\n", argv[0]);
+    fprintf(stderr, "Usage: %s <servers> <ram> <disk> <cpus> <cores-da-maquina-local-seleccionados-para-o-CloudIST> <INPUT_DIR> <MAX_THREADS>\n", argv[0]);
     return 1;
   }
 
@@ -30,7 +31,7 @@ int main(int argc, char **argv){
 			parse_size_t_arg(argv[2], &ram) != 0 ||
 			parse_size_t_arg(argv[3], &disk) != 0 ||
 			parse_double_arg(argv[4], &cpu) != 0 ||
-			parse_double_arg(argv[6], &cores) != 0 ||
+			parse_double_arg(argv[5], &cores) != 0 ||
 			parse_size_t_arg(argv[7],&max_threads) != 0) {
 		fprintf(stderr, "Invalid command line arguments.\n");
 		return 1;
@@ -42,7 +43,7 @@ int main(int argc, char **argv){
 	}
 	DIR *dirp;
 	struct dirent *dp;
-	dirp = opendir(argv[5]);
+	dirp = opendir(argv[6]);
 	if (dirp == NULL) {
 		fprintf(stderr,"opendir failed\n");
 		return 1;
@@ -89,7 +90,7 @@ int main(int argc, char **argv){
 		}
 	
 	Thread *args= malloc(sizeof(Thread));
-	args->input_dir=argv[5];
+	args->input_dir=argv[6];
 	args->conf_files=lista;
 	args->total_files=count;
 	args->ind_curr=0;

@@ -28,9 +28,10 @@ void datacenter_destroy(DataCenter *dc) {
     }
     pthread_mutex_destroy(&dc->servers[i].lock);
   }
-  for(size_t i = 0; i < dc->num_reservations; i++){
+  /**for(size_t i = 0; i < dc->num_reservations; i++){
     free(&dc->reservations[i]);
   }
+  */
   free(dc->servers);
   pthread_rwlock_destroy(&dc->types_lock);
   pthread_mutex_destroy(&dc->reservations_lock);

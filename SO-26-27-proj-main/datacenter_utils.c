@@ -1,9 +1,10 @@
+#define _XOPEN_SOURCE 700  // não sei se podesse
 #include "datacenter_utils.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <limits.h>
 #include <sys/wait.h>
 #include <sys/resource.h>
 #include <errno.h>
@@ -258,18 +259,19 @@ int originy_vm_dir(Reservation *res, VM *vm){
 	return copiadiretoria(vm->type->input_folder, vm_destino);
 }
 
-void spawn_vm_child(VM *vm, DataCenter *dc, double cores) { 
+void spawn_vm_child(Reservation *res, VM *vm, DataCenter *dc, double cores) { 
 	(void)vm; // To avoid warning.
 	struct rlimit lim_ram;
-	lim_ram.rlim_cur = vm->type->required.ram;  //define os limites da RAM 
-	lim_ram.rlim_max = vm->type->required.ram;
+	lim_ram.rlim_cur = vm->type->required.ram <<30;  //define os limites da RAM, como a RAM está em GB e como GB é 2^30 temos de transformar em bytes
+	lim_ram.rlim_max = vm->type->required.ram <<30;
+
 	if (setrlimit(RLIMIT_AS,&lim_ram) < 0) {
 		perror("setrlimit failed");
 		return;
 	}
 	struct rlimit lim_disk;
-	lim_disk.rlim_cur = vm->type->required.disk;  //define os limites do disk
-	lim_disk.rlim_max = vm->type->required.disk;
+	lim_disk.rlim_cur = vm->type->required.disk <<30;  //define os limites do disk
+	lim_disk.rlim_max = vm->type->required.disk <<30;
 	if (setrlimit(RLIMIT_FSIZE,&lim_disk) < 0) {
 		perror("setrlimit failed");
 		return;
@@ -280,10 +282,23 @@ void spawn_vm_child(VM *vm, DataCenter *dc, double cores) {
 		cpu_limit=max_limit;
 	}
 	char cpu_limit_str[MAX_STRING_SIZE];
-
 	snprintf(cpu_limit_str, sizeof(cpu_limit_str), "%.2f", cpu_limit);
-	execlp("cpulimit", "cpulimit","-q","-f","-l", cpu_limit_str,"--", vm->type->exec_path, NULL); //o primeiro comando indica qual o programa se vai executar e o segundo corresponde ao argv[0]
-	
+
+	char vm_dir[MAX_PATH_SIZE + MAX_VM_ID_STRING];               //tem o caminho, que é necessário para o sript conseguir encontrar os seus ficheiros
+	snprintf(vm_dir,sizeof(vm_dir),"%s/%s/%s",CLOUD_IST, res->id,vm->id);
+
+	char abs_path[MAX_PATH_SIZE]; //contem o caminho do script
+	if (realpath(vm->type->exec_path, abs_path)==NULL) { 
+		perror("realpath failed");
+		_exit(EXIT_FAILURE);
+	}
+	if (chdir(vm_dir)!=0) {
+		perror("chdir failed");
+		exit(EXIT_FAILURE);
+	}
+
+	execlp("cpulimit", "cpulimit","-q","-f","-l", cpu_limit_str,"--", abs_path, (char*) NULL); //o primeiro comando indica qual o programa se vai executar e o segundo corresponde ao argv[0]
+
 	fprintf(stderr, "VM execution not implemented in base version.\n");
 	perror("execlp failed");
 }
@@ -303,7 +318,7 @@ int spawn_all_vms(Reservation *res, DataCenter *dc, double cores) {
         	perror("fork");
         	exit(EXIT_FAILURE);
 		case 0:
-			spawn_vm_child(vm,dc,cores);
+			spawn_vm_child(res,vm,dc,cores);
 			exit(EXIT_FAILURE);
 		default: //colocar trinco
 	        pthread_mutex_lock(&dc->reservations_lock);
