@@ -41,8 +41,8 @@ int main(int argc, char **argv){
 		fprintf(stderr,"o máximo de threads deve ser um inteiro positivo\n");
 		return 1;
 	}
-	DIR *dirp; // cria uma diretoria
-	struct dirent *dp; // entrada da diretoria
+	DIR *dirp; 
+	struct dirent *dp; 
 	dirp = opendir(argv[6]); // abre o INPUT_DIR
 
 	if (dirp == NULL) { // erro ao abrir a diretoria
@@ -51,8 +51,8 @@ int main(int argc, char **argv){
 	}
 
 	// construção da lista de ficheiros de extensão .conf
-	size_t count = 0; // número de ficheiros na lista
-	char **lista = NULL; // nova lista
+	size_t count = 0; 
+	char **lista = NULL; 
 
 	while ((dp = readdir(dirp)) != NULL) { // enquanto for possível ler a diretoria
 		if (verifica_extensao(dp->d_name, ".conf")) { // se o ficheiro lido foi da extensão .conf
@@ -100,25 +100,25 @@ int main(int argc, char **argv){
 	args->ind_curr=0;
 	args->dc=&dc;
 	args->cores = cores;
-	pthread_mutex_init(&args->mutex_t,NULL);
+	pthread_mutex_init(&args->mutex_t,NULL); // inicializa o mutex que protege o ind_curr
 
 	pthread_t threads[max_threads];
-	for (size_t i=0; i<max_threads; i++) {
-		if(pthread_create(&threads[i],0,do_thread,args)!=0) {
+	for (size_t i=0; i<max_threads; i++) { 
+		if(pthread_create(&threads[i],0,do_thread,args)!=0) { // cria uma thread
 			exit(1);
 		};
 	}
 	for (size_t i=0; i<max_threads;i++) {
-		pthread_join (threads[i], NULL);
+		pthread_join (threads[i], NULL); // espera que a threads[i] termine
 	}
-	pthread_mutex_destroy(&args->mutex_t);
-	free(args);
+	pthread_mutex_destroy(&args->mutex_t); // "destrói" a mutex
+	free(args); // liberta a memória do args
 
 	for(size_t i = 0; i < count; i++){
 		free(lista[i]);
 	}
 	
 	free(lista);
-	datacenter_destroy(&dc);
+	datacenter_destroy(&dc); // "destrói o datacenter"
 	return 0;
 }

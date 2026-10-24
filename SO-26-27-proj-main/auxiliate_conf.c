@@ -16,11 +16,7 @@ int verifica_extensao(const char * str, const char * ext) {
 		return 0;
 	}
 	else {
-<<<<<<< HEAD
 		return strcmp(str+ (l1 - l2),ext)==0; //compara a string com o sufixo, consumindo os carateres da string 
-=======
-		return strcmp(str+ (l1 - l2),ext)==0; //compara a string com o sufixo, consumindo os carateres da string
->>>>>>> 04b9769 (.)
 	}
 } 
 

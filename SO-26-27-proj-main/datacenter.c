@@ -17,6 +17,7 @@ void datacenter_init(DataCenter *dc) {
 
   dc->configured = 0;
 
+  // inicializa os trincos
   pthread_rwlock_init(&dc->types_lock, NULL);
   pthread_mutex_init(&dc->reservations_lock, NULL);
 }
@@ -29,7 +30,7 @@ void datacenter_destroy(DataCenter *dc) {
     //necessário destruir o trinco presente para as reservas
     pthread_mutex_destroy(&dc->servers[i].lock);
   }
-  //liberatra a memória alocada nas reservas
+  //liberta a memória alocada nas reservas
   free(dc->servers);
   //"destruição" dos trincos presentes
   pthread_rwlock_destroy(&dc->types_lock);

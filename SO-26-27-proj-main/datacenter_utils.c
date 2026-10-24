@@ -357,8 +357,7 @@ int spawn_all_vms(Reservation *res, DataCenter *dc, double cores) {
 }
 
 void wait_for_all_vms(Reservation *res, DataCenter *dc) {
-	int status; // estado da VM
-	//percorre todas as vms presentes na reserva
+	int status;
 	for (size_t i = 0; i < res->num_vms; i++) {
 		if (waitpid(res->vms[i]->pid, &status, 0) == -1) // espera que o processo filho termine
             return;
