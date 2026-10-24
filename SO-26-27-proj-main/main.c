@@ -37,28 +37,31 @@ int main(int argc, char **argv){
 		return 1;
 	}
 
-	if(max_threads == 0){
+	if(max_threads == 0){ // se o número de threads for 0 dá erro
 		fprintf(stderr,"o máximo de threads deve ser um inteiro positivo\n");
 		return 1;
 	}
-	DIR *dirp;
-	struct dirent *dp;
-	dirp = opendir(argv[6]);
-	if (dirp == NULL) {
+	DIR *dirp; // cria uma diretoria
+	struct dirent *dp; // entrada da diretoria
+	dirp = opendir(argv[6]); // abre o INPUT_DIR
+
+	if (dirp == NULL) { // erro ao abrir a diretoria
 		fprintf(stderr,"opendir failed\n");
 		return 1;
 	}
-	//construção da lista de ficheiros de extensão .conf
-	size_t count = 0;
-	char **lista = NULL;
-	while ((dp = readdir(dirp)) != NULL) {
-		if (verifica_extensao(dp->d_name, ".conf")) {
-			char **tmp = realloc(lista, (count + 1)*sizeof(char*));
+
+	// construção da lista de ficheiros de extensão .conf
+	size_t count = 0; // número de ficheiros na lista
+	char **lista = NULL; // nova lista
+
+	while ((dp = readdir(dirp)) != NULL) { // enquanto for possível ler a diretoria
+		if (verifica_extensao(dp->d_name, ".conf")) { // se o ficheiro lido foi da extensão .conf
+			char **tmp = realloc(lista, (count + 1)*sizeof(char*)); // aumenta o tamanho da lista para mais uma posição
 			if(tmp == NULL)
 				return 1;
-			lista = tmp;
-			lista[count]=strdup(dp->d_name);
-			count++;
+			lista = tmp; // lista passa a apontar para o novo bloco realocado
+			lista[count]=strdup(dp->d_name); // a nova posição guarda uma cópia do nome do ficheiro
+			count++; // aumenta o número de elementos na lista
 		}
 	}
 	closedir(dirp);
@@ -89,8 +92,9 @@ int main(int argc, char **argv){
 			return 1;
 		}
 	
-	Thread *args= malloc(sizeof(Thread));
-	args->input_dir=argv[6];
+	Thread *args= malloc(sizeof(Thread)); // aloca memória para os argumenntos partilhados pelas threads
+	// define os argumentos partilhados
+	args->input_dir=argv[6]; 
 	args->conf_files=lista;
 	args->total_files=count;
 	args->ind_curr=0;

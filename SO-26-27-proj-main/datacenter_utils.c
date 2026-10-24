@@ -256,42 +256,53 @@ int originy_vm_dir(Reservation *res, VM *vm){
 
 	//guarda a pasta do VM e copia o input para o vm_destino (pasta onde o worker corre)
 	snprintf(vm_destino,sizeof(vm_destino),"%s/%s",first_path,vm->id);
+
 	//caso dê erro ao criar as diretorais necessárias, deve-se retornar 1
 	if(make_dir(CLOUD_IST) != 0|| make_dir(first_path) != 0 || make_dir(vm_destino) != 0  ){
 		return 1;
 	}
-	//chamada recursiva à função copiadiretorai
+
+	//chamada recursiva à função copiadiretoria
 	return copiadiretoria(vm->type->input_folder, vm_destino);
 }
 
 void spawn_vm_child(VM *vm, DataCenter *dc, double cores) { 
 	(void)vm; // To avoid warning.
+
 	// necessário definir os limites da RAM  na estrutura rlimit
 	//operação bit a bit <<30 para converter GB para bytes (GB->2^30)
 	struct rlimit lim_ram;
 	lim_ram.rlim_cur = vm->type->required.ram <<30;  
 	lim_ram.rlim_max = vm->type->required.ram <<30;
+
 	//impõe o limite da ram 
 	if (setrlimit(RLIMIT_AS,&lim_ram) < 0) {
 		perror("setrlimit failed");
 		return;
 	}
+
 	// necessário definir os limites do disco  na estrutura rlimit
 	//operação bit a bit <<30 para converter GB para bytes (GB->2^30)
 	struct rlimit lim_disk;
-	lim_disk.rlim_cur = vm->type->required.disk <<30;  //define os limites do disk
+	lim_disk.rlim_cur = vm->type->required.disk <<30;
 	lim_disk.rlim_max = vm->type->required.disk <<30;
+
 	//impõe o limite do disco
 	if (setrlimit(RLIMIT_FSIZE,&lim_disk) < 0) {
 		perror("setrlimit failed");
 		return;
 	}
+
+	double max_limit = 100.0 * cores; //limite máximo para o cpu
+
 	//cálculo do limite de cpu com base na fórmula fornecida
-	double max_limit = 100.0 * cores;
 	double cpu_limit = (100.0 * vm->type->required.cpu*cores)/((double)vm->server->total.cpu*(double)dc->num_servers);
+	
+	//caso o limite do cpu ultrapasse o limite máximo, o limite do cpu é igual ao limite máximo
 	if (cpu_limit > max_limit) {
 		cpu_limit = max_limit;
 	}
+
 	//transformar o limite de cpu em string
 	char cpu_limit_str[MAX_STRING_SIZE];
 	snprintf(cpu_limit_str, sizeof(cpu_limit_str), "%.2f", cpu_limit);
@@ -299,45 +310,46 @@ void spawn_vm_child(VM *vm, DataCenter *dc, double cores) {
 	if (access(vm->type->exec_path, X_OK)==0) {  //se o ficheiro tiver permissão de execução, lança-o diretamente
 		execlp("cpulimit", "cpulimit","-q","-f","-l", cpu_limit_str,"--", vm->type->exec_path, (char*) NULL); //comando cpulimit, em que o segundo ccpulimit corresponde ao argv[0]
 	}
-	else { //se o ficheiro não tem permissão, tem de lançar através do sh
+	else { //se o ficheiro não tem permissão, é lançado através do sh
 		execlp("cpulimit", "cpulimit","-q","-f","-l", cpu_limit_str,"--", "sh", vm->type->exec_path, (char*) NULL); 
 	}
 
-	fprintf(stderr, "VM execution not implemented in base version.\n");
+	fprintf(stderr, "VM execution not implemented in base version.\n"); //se o execlp falhar lança erro
 	perror("execlp failed");
 }
 
 int spawn_all_vms(Reservation *res, DataCenter *dc, double cores) { 
-	for (size_t i = 0; i < res->num_vms; i++) {
+	for (size_t i = 0; i < res->num_vms; i++) { // percorre todas as VM's da reserva
 		VM *vm = res->vms[i];
-		//necessiat de originar a diretoria de destino para a VM
-		if(originy_vm_dir(res,vm) != 0){
+
+		if(originy_vm_dir(res,vm) != 0){ // origina a diretoria de destino necessária para a VM
 			perror("Erro ao originar a diretoria de destino para a VM");
 			return 1;
 		}
 		pid_t childPid; 
 		switch (childPid=fork()) {
 		
-		case -1: /* error */
+		case -1: // erro ao executar o fork
         	perror("fork");
         	return 1;
 		case 0:
-			// Construir o caminho da diretoria da VM
+		    /** o caminho vm_destino tem de ser reconstruído uma vez que o vm_destino originado pelo originy_vm_dir
+			    é local; o caminho é igual ao criado na função originy_vm_dir*/
 			char vm_destino[MAX_PATH_SIZE + MAX_VM_ID_STRING];
-			snprintf(vm_destino, sizeof(vm_destino), "%s/%s/%s", CLOUD_IST, res->id, vm->id);
+			snprintf(vm_destino, sizeof(vm_destino), "%s/%s/%s", CLOUD_IST, res->id, vm->id); //
 			
-			// Mudar a diretoria de trabalho do processo filho para a pasta da VM
+			// muda a diretoria de trabalho do processo filho para a pasta da VM
 			if (chdir(vm_destino) != 0) {
 				perror("chdir failed");
 				exit(EXIT_FAILURE);
 			}
 
-			spawn_vm_child(vm, dc, cores);
+			spawn_vm_child(vm, dc, cores); // define os limites da VM e executa o programa
 			exit(EXIT_FAILURE);
 			break;
 		default: //caso seja um pai
-			vm->pid=childPid;
-			vm->state=VM_STATE_RUNNING;
+			vm->pid=childPid; // altera o seu pid para o do filho
+			vm->state=VM_STATE_RUNNING; // o fork já criou o processo da VM e por isso listagem passa a mostrá-la como RUNNING
 			break;
 		}
 	}
@@ -345,12 +357,13 @@ int spawn_all_vms(Reservation *res, DataCenter *dc, double cores) {
 }
 
 void wait_for_all_vms(Reservation *res, DataCenter *dc) {
-	int status;
+	int status; // estado da VM
 	//percorre todas as vms presentes na reserva
 	for (size_t i = 0; i < res->num_vms; i++) {
-		if (waitpid(res->vms[i]->pid, &status, 0) == -1)
+		if (waitpid(res->vms[i]->pid, &status, 0) == -1) // espera que o processo filho termine
             return;
-		//atualiza o estado da VM para TERMINATED dentro de uma secção crítica
+		
+		//como o estado da VM é lido por outras threads, o estado é atualizado para TERMINATED dentro de uma secção crítica
 		pthread_mutex_lock(&dc->reservations_lock);
 		res->vms[i]->state = VM_STATE_TERMINATED;
 		pthread_mutex_unlock(&dc->reservations_lock);

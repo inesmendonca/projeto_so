@@ -73,6 +73,27 @@ Reservation *find_pending_reservation(DataCenter *dc, const char *reservation_id
 void reservation_destroy(DataCenter *dc, Reservation *reservation);
 
 /**
+ * Cria uma diretoria com as permissões 0755, ou seja permite que o dono leia, escreva e execute a diretoria,
+ * mas todos os outros utilizadores só podem ler e executar
+ *
+ * @param path Caminho da diretoria a ser criada 
+ *
+ * @return 0 em caso de sucesso, retorna 1 caso contrário
+ */
+int make_dir(const char *path);
+
+/**
+ * Origina a diretoria de destino em que vão estar presentes os ficheiros copiados recursivamente
+ *
+ * @param res- ponteiro para a estrutura Reservation
+ * @param vm- ponteiro para a estrutura VM
+ *
+ * @return copiadiretoria , chama recursivamente a função para efetuar a cópia pretendida, em caso de sucesso
+ * em caso de erro, retorna 1 (inválido)
+ */
+int originy_vm_dir(Reservation *res, VM *vm);
+
+/**
  * Runs in the child process after fork(): sets resource limits (RAM,
  * disk) and execs the VM's workload under cpulimit. Never returns
  * (either execs successfully or calls exit(1) on failure).
@@ -118,15 +139,5 @@ const char *vm_state_to_string(VMState state);
  * @return Static, human-readable string describing the state.
  */
 const char *res_state_to_string(ReservationState state);
-
-/**
-*Origina a diretoria de destino em que vão estar presentes os ficheiros copiados recursivamente
-*@param res- ponteiro para a estrutura Reservation
-*@param vm- ponteiro para a estrutura VM
-
-*@return copiadiretoria , chama recursivamente a função para efetuar a cópia pretendida*, em caso de sucesso
-em caso de erro, retorna 1 (inválido)*/
-int originy_vm_dir(Reservation *res, VM *vm);
-
 
 #endif // DATACENTER_UTILS__H
