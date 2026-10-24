@@ -282,7 +282,7 @@ void spawn_vm_child(VM *vm, DataCenter *dc, double cores) {
 		perror("setrlimit failed");
 		return;
 	}
-	//cálculo do limite de cpu com base na fórmual fornecida
+	//cálculo do limite de cpu com base na fórmula fornecida
 	double max_limit = 100.0 * cores;
 	double cpu_limit = (100.0 * vm->type->required.cpu*cores)/((double)vm->server->total.cpu*(double)dc->num_servers);
 	if (cpu_limit > max_limit) {
