@@ -119,6 +119,6 @@ int main(int argc, char **argv){
 	}
 	
 	free(lista);
-	datacenter_destroy(&dc); // "destrói o datacenter"
+	datacenter_destroy(&dc);
 	return 0;
 }

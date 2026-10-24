@@ -47,7 +47,9 @@ int absolute_path(const char *path, char *buffer, size_t size){
 }
 
 int copiaficheiro(const char *origem, const char *destino) {
-  struct stat fich_inf;
+  struct stat fich_inf; // guarda informação do ficheiro
+
+  // preenche o fich_inf com a informação no ficheiro origem
   if (stat(origem,&fich_inf) != 0) {
     perror("Erro em obter o stat do ficheiro");
     return 1;
@@ -57,6 +59,7 @@ int copiaficheiro(const char *origem, const char *destino) {
     perror("Erro ao abrir o ficheiro de origem");
     return 1;
   }
+  // operação bit a bit que otém as permissões do ficheiro
   int fd2 = open(destino, O_CREAT | O_TRUNC | O_WRONLY, fich_inf.st_mode & 0777);
   if (fd2 == -1) {
     perror ("Erro ao abrir ficheiro de destino");
@@ -79,7 +82,7 @@ int copiaficheiro(const char *origem, const char *destino) {
     done += bytes_written;
     }
   }
-  // se a operção read falhar
+  // se a operação read falhar
   if(bytes_read < 0){
     perror("erro de leitura");
     close(fd1);
@@ -92,12 +95,13 @@ int copiaficheiro(const char *origem, const char *destino) {
 }
 
 int copiadiretoria(const char *origem, const char *destino) {
+  // cria uma diretoria com as permissões adequadas
   if(mkdir(destino,0755) != 0 && errno != EEXIST){
     perror("erro ao criar diretoria de destino");
     return 1;
   }
   struct dirent *entry;
-	DIR *dp = opendir(origem);
+	DIR *dp = opendir(origem); // abertura da diretoria de origem
   char nova_origem[MAX_PATH_SIZE];
   char novo_destino[MAX_PATH_SIZE];
   if (dp == NULL) {
@@ -105,23 +109,24 @@ int copiadiretoria(const char *origem, const char *destino) {
 		return 1;
 	}
 	while((entry = readdir(dp)) != NULL){
-    if(strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name,"..") == 0)
+    if(strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name,"..") == 0) // ignora a diretoria do pai e do filho
       continue;
-    snprintf(nova_origem, sizeof(nova_origem), "%s/%s", origem, entry->d_name);
-    snprintf(novo_destino,sizeof(novo_destino),"%s/%s",destino, entry->d_name);
+    snprintf(nova_origem, sizeof(nova_origem), "%s/%s", origem, entry->d_name); // cria novo caminho de origem  
+    snprintf(novo_destino,sizeof(novo_destino),"%s/%s",destino, entry->d_name); // cria novo caminho de destino
   
     struct stat st;
     if(lstat(nova_origem,&st) == -1){
       perror("erro ao executar lstat");
+      // fecha a diretoria uma vez que houve erro
       closedir(dp);
       return 1;
     }
-    if(S_ISDIR(st.st_mode))
+    if(S_ISDIR(st.st_mode)) // se for uma diretoria chama a função recursivamente
       copiadiretoria(nova_origem,novo_destino);
-    else if (S_ISREG(st.st_mode))
+    else if (S_ISREG(st.st_mode)) // se for um ficheiro chama a função copiaficheiro
       copiaficheiro(nova_origem,novo_destino);
   }
-  closedir(dp);
+  closedir(dp); // fecha a diretoria em caso de sucesso
   return 0;
 
 }

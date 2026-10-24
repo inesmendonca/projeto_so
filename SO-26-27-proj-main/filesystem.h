@@ -35,7 +35,27 @@ int file_exists(const char *path);
  */
 int absolute_path(const char *path, char *buffer, size_t size);
 
-int copiaficheiro(const char *origem, const char *destino);
+/**
+ * Lê a diretoria de origem e abre subdiretorias até encontrar ficheiros.
+ * Ao encontrar ficheiros, copia, através do copiaficheiro o seu conteúdo para a diretoria de destino.
+ *
+ * @param origem diretoria de origem
+ * @param destino diretoria de destino
+ *
+ * @return 0 em caso de sucesso, 1 em caso de erro
+ */
 int copiadiretoria(const char *origem, const char *destino);
+
+
+/**
+ * Copia o conteúdo do ficheiro de origem para o ficheiro de destino.
+ *
+ * @param origem ficheiro de origem
+ * @param destino fichiero de destino
+ *
+ * @return 0 em caso de sucesso, 1 em caso de erro
+ */
+int copiaficheiro(const char *origem, const char *destino);
+
 
 #endif // FILESYSTEM__H
