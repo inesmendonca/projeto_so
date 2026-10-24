@@ -250,7 +250,11 @@ int originy_vm_dir(Reservation *res, VM *vm){
 	//criação da diretoria de destino
 	char first_path[MAX_PATH_SIZE];
 	char vm_destino[MAX_PATH_SIZE + MAX_VM_ID_STRING];
+
+	//guarda a pasta que contem as VM's da reserva no first_path
 	snprintf(first_path,sizeof(first_path),"%s/%s",CLOUD_IST,res->id);
+
+	//guarda a pasta do VM e copia o input para o vm_destino (pasta onde o worker corre)
 	snprintf(vm_destino,sizeof(vm_destino),"%s/%s",first_path,vm->id);
 	//caso dê erro ao criar as diretorais necessárias, deve-se retornar 1
 	if(make_dir(CLOUD_IST) != 0|| make_dir(first_path) != 0 || make_dir(vm_destino) != 0  ){
