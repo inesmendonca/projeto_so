@@ -8,4 +8,4 @@
 #define MAX_RESERVATIONS       256
 #define MAX_RESERVATIONS_ITEMS 32
 #define MAX_RESERVATION_VMS    128
-#define CLOUD_IST "/tmp/CloudIST/" // caminho predefinido para a diretoria
+#define CLOUD_IST "/tmp/CloudIST-ist1118603" // caminho predefinido para a diretoria

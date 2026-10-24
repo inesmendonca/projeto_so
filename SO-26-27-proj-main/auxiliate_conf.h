@@ -15,7 +15,7 @@
 int verifica_extensao(const char * str, const char * ext); 
 
 /**
- * Compara dois nomes de ficheiros com a finalidade de os ordenar alfabeticamente
+ * Compara dois nomes de ficheiros com a finalidade de os ordenar alfabeticamente com o qsort
  *
  * @param a primeiro ficheiro
  * @param b segundo ficheiro

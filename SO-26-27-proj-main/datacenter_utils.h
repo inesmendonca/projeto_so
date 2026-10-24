@@ -73,6 +73,14 @@ Reservation *find_pending_reservation(DataCenter *dc, const char *reservation_id
 void reservation_destroy(DataCenter *dc, Reservation *reservation);
 
 /**
+ * Cria uma diretoria com as permissões 0755, ou seja permite que o dono leia, escreva e execute a diretoria,
+ * mas todos os outros utilizadores só podem ler e executar
+ *
+ * @param path Caminho da diretoria a ser criada 
+ *
+ * @return 0 em caso de sucesso, retorna 1 caso contrário
+ */
+/**
  * Runs in the child process after fork(): sets resource limits (RAM,
  * disk) and execs the VM's workload under cpulimit. Never returns
  * (either execs successfully or calls exit(1) on failure).

@@ -9,21 +9,23 @@
 #include "constants.h"
 
 int verifica_extensao(const char * str, const char * ext) {
-	size_t l1, l2;
-	l1=strlen(str);
+	size_t l1, l2; 
+	l1=strlen(str); 
 	l2=strlen(ext);
-	if (l1 < l2) {
+	if (l1 < l2) { // se o nome do ficheiro é menor do que o comprimento da extensão, não é da extensão pretendida
 		return 0;
 	}
 	else {
-		return strcmp(str+ (l1 - l2),ext)==0;
+		return strcmp(str+ (l1 - l2),ext)==0; //compara os últimos l2 caracteres do nome do ficheiro com a extensão
 	}
 } 
 
 int comparar_nomes(const void *a, const void *b) {
-	const char *const *pa = a; //conversão implícita de void*
+    /** como o qsort passa ponteiros para elementos do array, cada elemento é char*.
+    Assim, como *a e *b são do tipo char*, é necessário transformá-los em ponteiros de string (const char*) */
+	const char *const *pa = a;
 	const char *const *pb = b;
-	return strcmp(*pa,*pb);
+	return strcmp(*pa,*pb); //compara as duas strings por ordem alfabética
 }
 
 void *do_thread(void *arg){

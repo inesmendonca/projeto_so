@@ -240,9 +240,8 @@ void reservation_destroy(DataCenter *dc, Reservation *reservation) {
 }
 
 int make_dir(const char *path){
-	// a diretoria necessita de ter as permissões adequadas e pode existir devido à existência de múltiplas reservas 
-	if(mkdir(path,0755) && errno != EEXIST){
-		return 1;
+	if(mkdir(path,0755) && errno != EEXIST){  
+		return 1;  // o mkdir falou em criar a diretoria
 	}
 	return 0;
 }
@@ -293,8 +292,12 @@ void spawn_vm_child(VM *vm, DataCenter *dc, double cores) {
 	char cpu_limit_str[MAX_STRING_SIZE];
 	snprintf(cpu_limit_str, sizeof(cpu_limit_str), "%.2f", cpu_limit);
 
-	//comandos de input(o primeiro comando indica qual o programa se vai executar e o segundo corresponde ao argv[0])
-	execlp("cpulimit", "cpulimit","-q","-f","-l", cpu_limit_str,"--", vm->type->exec_path, (char*) NULL); 
+	if (access(vm->type->exec_path, X_OK)==0) {  //se o ficheiro tiver permissão de execução, lança-o diretamente
+		execlp("cpulimit", "cpulimit","-q","-f","-l", cpu_limit_str,"--", vm->type->exec_path, (char*) NULL); //comando cpulimit, em que o segundo ccpulimit corresponde ao argv[0]
+	}
+	else { //se o ficheiro não tem permissão, tem de lançar através do sh
+		execlp("cpulimit", "cpulimit","-q","-f","-l", cpu_limit_str,"--", "sh", vm->type->exec_path, (char*) NULL); 
+	}
 
 	fprintf(stderr, "VM execution not implemented in base version.\n");
 	perror("execlp failed");
