@@ -241,7 +241,7 @@ void reservation_destroy(DataCenter *dc, Reservation *reservation) {
 
 int make_dir(const char *path){
 	if(mkdir(path,0755) && errno != EEXIST){  
-		return 1;  // o mkdir falou em criar a diretoria
+		return 1;  // o mkdir falhou em criar a diretoria
 	}
 	return 0;
 }
