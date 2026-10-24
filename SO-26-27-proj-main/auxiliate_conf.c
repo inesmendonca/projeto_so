@@ -16,7 +16,7 @@ int verifica_extensao(const char * str, const char * ext) {
 		return 0;
 	}
 	else {
-		return strcmp(str+ (l1 - l2),ext)==0; //compara os últimos l2 caracteres do nome do ficheiro com a extensão
+		return strcmp(str+ (l1 - l2),ext)==0; //compara a string com o sufixo, consumindo os carateres da string 
 	}
 } 
 
@@ -25,7 +25,7 @@ int comparar_nomes(const void *a, const void *b) {
     Assim, como *a e *b são do tipo char*, é necessário transformá-los em ponteiros de string (const char*) */
 	const char *const *pa = a;
 	const char *const *pb = b;
-	return strcmp(*pa,*pb); //compara as duas strings por ordem alfabética
+	return strcmp(*pa,*pb); //compara as duas strings
 }
 
 void *do_thread(void *arg){
