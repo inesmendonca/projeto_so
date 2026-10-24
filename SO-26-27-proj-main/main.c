@@ -37,7 +37,7 @@ int main(int argc, char **argv){
 		return 1;
 	}
 
-	if(max_threads == 0){ // se o número de threads for 0 dá erro
+	if(max_threads == 0){
 		fprintf(stderr,"o máximo de threads deve ser um inteiro positivo\n");
 		return 1;
 	}
@@ -45,7 +45,7 @@ int main(int argc, char **argv){
 	struct dirent *dp; 
 	dirp = opendir(argv[6]); // abre o INPUT_DIR
 
-	if (dirp == NULL) { // erro ao abrir a diretoria
+	if (dirp == NULL) { 
 		fprintf(stderr,"opendir failed\n");
 		return 1;
 	}
@@ -54,7 +54,7 @@ int main(int argc, char **argv){
 	size_t count = 0; 
 	char **lista = NULL; 
 
-	while ((dp = readdir(dirp)) != NULL) { // enquanto for possível ler a diretoria
+	while ((dp = readdir(dirp)) != NULL) { 
 		if (verifica_extensao(dp->d_name, ".conf")) { // se o ficheiro lido foi da extensão .conf
 			char **tmp = realloc(lista, (count + 1)*sizeof(char*)); // aumenta o tamanho da lista para mais uma posição
 			if(tmp == NULL)
