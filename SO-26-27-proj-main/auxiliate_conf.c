@@ -32,7 +32,7 @@ void *do_thread(void *arg){
 	// criação de um ponteiro para a estrutura Thread
 	Thread *args = (Thread *) arg;
 	DataCenter *dc = args->dc;
-	size_t file_idx = 0; //indice a percorrer o ficheiro inicializado a 0
+	size_t file_idx = 0;
 	
 
 	//processamento dos comandos de cada ficheiro
@@ -49,7 +49,7 @@ void *do_thread(void *arg){
 			pthread_mutex_unlock(&args->mutex_t);
 			break;
 		}
-		//construir o caminho completo do ficheiro.conf
+		//construir o caminho completo do ficheiro .conf
 		char file_path[MAX_PATH_SIZE];
 		snprintf(file_path,sizeof(file_path),"%s/%s",args->input_dir,args->conf_files[file_idx]);
 		int fd = open(file_path,O_RDONLY);
@@ -58,76 +58,76 @@ void *do_thread(void *arg){
 			continue; //tenta processar outros ficheiros
 		}
 		int processing = 1;
-		while(processing){ //se o ficheiro foi aberto com sucesso
-			switch (get_next_command(fd)){ //lê o inicio do ficheiro
-					case CMD_DEFINE: { //se a linha lida corresponder ao comando D
+		while(processing){
+			switch (get_next_command(fd)){
+					case CMD_DEFINE: { 
 						VMType vmtype;
 
-						if (parse_define(fd, &vmtype) != 0) { //erro no comando
+						if (parse_define(fd, &vmtype) != 0) {
 							fprintf(stderr, "Invalid define command. See H (help) for usage.\n");
 							continue;
 						}
 
-						if(datacenter_define_VM(dc, &vmtype) != 0){ //erro no comando
+						if(datacenter_define_VM(dc, &vmtype) != 0){ 
 							fprintf(stderr, "Failed to define VM.\n");
 							continue;
 						}
 
-						printf("VM successfully defined!\n"); //sucesso
+						printf("VM successfully defined!\n");
 
 						break;
 					}
 
-					case CMD_RESERVE: { //se a linha lida corresponder ao comando R
-						Reservation reservation = {0}; //nova reserva
+					case CMD_RESERVE: { 
+						Reservation reservation = {0}; 
 
-                         //realiza a reserva e retorna o número de itens na reserva
+
 						size_t num_items = parse_reserve(fd, &reservation, MAX_RESERVATIONS_ITEMS); 
 
-						if (num_items == 0) { //erro na reserva
+						if (num_items == 0) {
 							fprintf(stderr, "Invalid reserve command. See H (help) for usage.\n");
 							continue;
 						}
 
-						if (datacenter_reserve(dc, &reservation) != 0) { //erro na reserva
+						if (datacenter_reserve(dc, &reservation) != 0) { 
 							fprintf(stderr, "Failed to reserve VMs.\n");
 							continue;
 						}
 
-						printf("Reservation made successfully!\n"); //sucesso
+						printf("Reservation made successfully!\n"); 
 
 						break;
 					}
 
-					case CMD_EXECUTE: { // se a linha lida corresponder ao comando A
-						char id[MAX_STRING_SIZE]; //novo id
+					case CMD_EXECUTE: { 
+						char id[MAX_STRING_SIZE]; 
 
-						if(parse_execute(fd, id) != 0){ //erro na execução
+						if(parse_execute(fd, id) != 0){
 							fprintf(stderr, "Invalid execute command. See H (help) for usage.\n");
 							continue;
 						}
 
-						if (datacenter_execute(dc, id, args->cores) != 0) { //erro na execução
+						if (datacenter_execute(dc, id, args->cores) != 0) { 
 							fprintf(stderr, "Failed to execute reservation.\n");
 							continue;
 						}
 
-						printf("Finished reservation execution!\n"); //sucesso
+						printf("Finished reservation execution!\n"); 
 
 						break;
                     }
-					case CMD_LIST: { //sea linha lida corresponder ao comando L
-						if (datacenter_list(dc) != 0) { //erro ao listar a reserva
+					case CMD_LIST: { 
+						if (datacenter_list(dc) != 0) { 
 							fprintf(stderr, "Failed to list VMs.\n");
 							continue;
 						}
 
 						break;
                     }
-					case CMD_WAIT: { //se a linha lida corresponder ao comando E
-						unsigned int delay; //tempo de espera
+					case CMD_WAIT: { 
+						unsigned int delay; 
 
-						if(parse_wait(fd, &delay) != 0){ //erro
+						if(parse_wait(fd, &delay) != 0){ 
 							fprintf(stderr, "Invalid wait command. See H (help) for usage.\n");
 							continue;
 						}
@@ -135,11 +135,11 @@ void *do_thread(void *arg){
 						datacenter_wait(delay);
 						break;
                     }
-					case CMD_INVALID: { //se a linha lida não corresponder a nenhum comando
+					case CMD_INVALID: { 
 						fprintf(stderr, "Invalid Command. See H (help) for usage.\n");
 						break;
                     }
-					case CMD_HELP: { //se a linha lida corresponder ao comando H
+					case CMD_HELP: { 
 						printf(
 							"Spaces between arguments are allowed, but not after command end.\n"
 							"Available commands:\n"
@@ -152,10 +152,10 @@ void *do_thread(void *arg){
 						);
 						break;
                     }
-					case CMD_EMPTY: //se a linha lida começar com '#' ou '\n'
+					case CMD_EMPTY: 
 						break;
 
-					case EOC: //a leitura deu erro ou a leitura foi concluída
+					case EOC: 
 						processing = 0;
 						break;
 				}
