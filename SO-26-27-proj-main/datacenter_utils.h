@@ -80,6 +80,8 @@ void reservation_destroy(DataCenter *dc, Reservation *reservation);
  *
  * @return 0 em caso de sucesso, retorna 1 caso contrário
  */
+int make_dir(const char *path);
+
 /**
  * Runs in the child process after fork(): sets resource limits (RAM,
  * disk) and execs the VM's workload under cpulimit. Never returns
